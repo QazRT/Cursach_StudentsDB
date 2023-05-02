@@ -52,32 +52,31 @@ int main()
     //wwdb->add_student("¡»—Œ-03-22", "22¡0863", "asd", "asd", "asd");
     //wwdb->add_student("¡»—Œ-02-22", "22¡0864", "dsa", "dda");
 
+    wwdb->get_students_by_group("¡»—Œ-02-22");
 
-    //wwdb->get_students_by_group("¡»—Œ-02-22");
+    Groupsm:
+    GroupMenu(wwdb->get_groups());
 
-    //Groupsm:
-    //GroupMenu(wwdb->get_groups());
+    Studlistm:
+    student stud_selectedItem = StudentsListMenu(wwdb->get_students_by_group(selectedItem));
 
-    //Studlistm:
-    //student stud_selectedItem = StudentsListMenu(wwdb->get_students_by_group(selectedItem));
+    if (stud_selectedItem.id == "-1")
+        goto Groupsm;
 
-    //if (stud_selectedItem.id == "-1")
-    //    goto Groupsm;
-
-    //int excode = StudentEdit(stud_selectedItem);
-    //switch (excode) {
-    //case -1:
-    //    goto Studlistm;
-    //    break;
-    //case 0:
-    //    //wwdb->add_student_score({0, "22¡0869", "Hui", ExamType::exam, 4.5});
-    //    wwdb->add_student("¡»—Œ-01-22", "22¡0831", "asd", "asd", "asd");
-    //    //cout << wwdb->encryptDecrypt("asd");
-    //    break;
-    //case 1:
-    //    wwdb->edit_student_score({ 0, "22¡0869", "Hui", ExamType::exam, 3.0});
-    //    break;
-    //}
+    int excode = StudentEdit(stud_selectedItem);
+    switch (excode) {
+    case -1:
+        goto Studlistm;
+        break;
+    case 0:
+        //wwdb->add_student_score({0, "22¡0869", "Hui", ExamType::exam, 4.5});
+        wwdb->add_student("¡»—Œ-02-22", "22¡0831", "asd", "asd", "asd");
+        //cout << wwdb->encryptDecrypt("asd");
+        break;
+    case 1:
+        wwdb->edit_student_score({ 0, "22¡0869", "Hui", ExamType::exam, 3.0});
+        break;
+    }
 
     delete wwdb;  
 }
