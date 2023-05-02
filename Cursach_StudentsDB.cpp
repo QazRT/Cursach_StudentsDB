@@ -52,6 +52,7 @@ int main()
     //wwdb->add_student("ахян-03-22", "22а0863", "asd", "asd", "asd");
     //wwdb->add_student("ахян-02-22", "22а0864", "dsa", "dda");
 
+
     wwdb->get_students_by_group("ахян-02-22");
 
     Groupsm:
