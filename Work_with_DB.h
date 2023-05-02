@@ -139,16 +139,69 @@ public:
 		return n-1;
 	}
 
+	student stud_parse(string st, int jsr = 0) {
+		string tmp;
+		bool fl = false;
+		student stout;
+		for (int i = 0, j = 0; i < st.length(); ++i) {
+			if (st[i] == '"') {
+				j++;
+				fl = j % 2;
+				if (fl)
+					tmp = "";
+				else {
+					tmp = encryptDecrypt(tmp);
+					switch (j)
+					{
+					case 2:
+						stout.group = tmp;
+						break;
+					case 4:
+						stout.id = tmp;
+						break;
+					case 6:
+						stout.surname = tmp;
+						break;
+					case 8:
+						stout.name = tmp;
+						break;
+					case 10:
+						stout.middle_name = tmp;
+						break;
+					default:
+						break;
+					}
+
+					if (j > 0 && j == jsr)
+						return stout;
+				}
+				continue;
+			}
+			if (fl) {
+				tmp += st[i];
+			}
+		}
+
+		return stout;
+	}
+
 	void add_student(string group, string id, string surname, string name, string middle_name = "ND") {
-		fstream students_file("Students.bin", fstream::in | fstream::binary);
+		fstream stfile("Students.bin", fstream::in | fstream::binary);
 		
+		string tmp;
+		while (!stfile.eof()) {
+			getline(stfile, tmp);
+			if (stud_parse(tmp, 4).id == id) {
+				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
+				return;
+			}
+		}
 
-
-		students_file.close();
-		students_file.open("Students.bin", fstream::out | fstream::app | fstream::binary);
+		stfile.close();
+		stfile.open("Students.bin", fstream::out | fstream::app | fstream::binary);
 		//students_file << group << " " << id << " " << surname << " " << name << " " << middle_name << " endl ";
-		students_file << "{\"" << group << "\"; " << id << " ; \"" << encryptDecrypt(surname) << "\"; \"" << encryptDecrypt(name) << "\"; \"" << encryptDecrypt(middle_name) << "\"}\n";
-		students_file.close();
+		stfile << "{\"" << encryptDecrypt(group) << "\"\"" << encryptDecrypt(id) << "\"\"" << encryptDecrypt(surname) << "\"\"" << encryptDecrypt(name) << "\"\"" << encryptDecrypt(middle_name) << "\"}\n";
+		stfile.close();
 
 		groups.insert(group);
 
@@ -160,21 +213,13 @@ public:
 		vector<student> students;
 
 		fstream students_file("Students.bin", fstream::in | fstream::binary);
-		char ch[11];
+		string tmp;
 		while (!students_file.eof()) {
-			students_file >> ch;
+			getline(students_file, tmp);
 			//cout << "ch = " << ch << endl;
-			if (ch == _group) {
-				student tmp_stud;
-				tmp_stud.group = _group;
-				students_file >> tmp_stud.id;
-				students_file >> tmp_stud.surname;
-				students_file >> tmp_stud.name;
-				students_file >> tmp_stud.middle_name;
-
-				students.push_back(tmp_stud);
-			}
-
+			student st = stud_parse(tmp);
+			if (st.group == _group) 
+				students.push_back(st);
 		}
 		students_file.close();
 

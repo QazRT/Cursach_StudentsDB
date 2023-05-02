@@ -53,7 +53,7 @@ int main()
     //wwdb->add_student("ÁÈÑÎ-02-22", "22Á0864", "dsa", "dda");
 
 
-    wwdb->get_students_by_group("ÁÈÑÎ-02-22");
+    //wwdb->get_students_by_group("ÁÈÑÎ-02-22");
 
     Groupsm:
     GroupMenu(wwdb->get_groups());
