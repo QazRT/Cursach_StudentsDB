@@ -141,24 +141,9 @@ public:
 
 	void add_student(string group, string id, string surname, string name, string middle_name = "ND") {
 		fstream students_file("Students.bin", fstream::in | fstream::binary);
-		int n = 0;
-		char ch[11];
-		string tmp_n;
-		for (int i = 0; i < stud_count; ++i) {
-			n += 10;
-			students_file.seekg(n);
-			students_file >> ch;
-			if (id == ch) {
-				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
-				return;
-			}
-			n += 9;
-			tmp_n = "";
-			while (tmp_n != "endl") {
-				students_file >> tmp_n;
-				n += tmp_n.length()+1;
-			}
-		}
+		
+
+
 		students_file.close();
 		students_file.open("Students.bin", fstream::out | fstream::app | fstream::binary);
 		//students_file << group << " " << id << " " << surname << " " << name << " " << middle_name << " endl ";
