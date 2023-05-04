@@ -34,7 +34,7 @@ student StudentsListMenu(vector<student> studs) {
 
 int StudentEdit(student stud) {
     MenuClass* stud_edit_menu = new MenuClass("Ñòóäåíò: " + stud.id + " " + stud.surname + " " + stud.name + " " + stud.middle_name);
-    int code = stud_edit_menu->stud_edit();
+    int code = stud_edit_menu->stud_edit(stud.id);
 
     delete stud_edit_menu;
     return code;
@@ -70,12 +70,12 @@ int main()
         goto Studlistm;
         break;
     case 0:
-        //wwdb->add_student_score({0, "22Á0869", "Hui", ExamType::exam, 4.5});
-        wwdb->add_student("ÁÈÑÎ-02-22", "22Á0831", "asd", "asd", "asd");
+        //wwdb->add_student_score({4, "22Á0864", "Hu", ExamType::exam, 3});
+        //wwdb->add_student("ÁÈÑÎ-02-22", "22Á0831", "asd", "asd", "asd");
         //cout << wwdb->encryptDecrypt("asd");
         break;
     case 1:
-        wwdb->edit_student_score({ 0, "22Á0869", "Hui", ExamType::exam, 3.0});
+        wwdb->edit_student_score({3, "22Á0864", "Huas", ExamType::exam, 3.0});
         break;
     }
 

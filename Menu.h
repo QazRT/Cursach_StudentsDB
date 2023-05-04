@@ -161,7 +161,7 @@ public:
 		return stud_items[selectedItem];
 	}
 
-	int stud_edit() {
+	int stud_edit(string stud_id) {
 		st = SelectType::string;
 
 		addMenuItem("Изменить данные о студенте");
@@ -169,7 +169,39 @@ public:
 		addMenuItem("Удалить студента");
 
 		WWC::Cur2xy(0, 7);
+		
 		cout.width(70);  cout.fill('_'); cout << "_" << endl;
+		cout.width(4); cout << left << "id";
+		cout.width(32); cout << left << "|_Предмет";
+		cout.width(9); cout << left << "|_Вид";
+		cout.width(10); cout << left << "|_Оценка" << endl;
+		cout.fill(' ');
+
+		WwDB* wwdb = new WwDB();
+		vector<stud_score> scr = wwdb->get_student_score(stud_id);
+		for (int i = 0; i < scr.size(); ++i) {
+			WWC::ConsColor(FOREGROUND_INTENSITY);
+			cout.width(3);  cout << left << scr[i].id;
+			WWC::ConsColor(15);
+			cout << " | ";
+
+			cout.width(30);
+			cout << left << scr[i].subj << "| ";
+
+			cout.width(7);
+			cout << ((scr[i].extype == ExamType::exam) ? "exam" : "zach") << "| ";
+			
+			if (scr[i].value < 3)
+				WWC::ConsColor(12);
+			else if (scr[i].value >= 3 && scr[i].value < 4)
+				WWC::ConsColor(14);
+			else if (scr[i].value >= 4)
+				WWC::ConsColor(FOREGROUND_GREEN);
+			cout.width(8);
+			cout << scr[i].value << endl;
+		}
+		WWC::ConsColor(15);
+
 
 		WWC::Cur2xy(0, 0);
 		ItemSelect(false, { {2, {12, 0, FOREGROUND_RED}} });
@@ -179,6 +211,7 @@ public:
 		if (selectedItem == -1)
 			return -1;
 
+		delete wwdb;
 		return selectedItem;
 	}
 };

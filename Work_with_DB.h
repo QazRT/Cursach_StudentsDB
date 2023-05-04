@@ -36,8 +36,6 @@ public:
 	void __init__() {
 		fstream students_file("Students.bin", fstream::out | fstream::app | fstream::binary);
 		students_file.close();
-		fstream tmpf("tmp", fstream::out | fstream::app | fstream::binary);
-		tmpf.close();
 		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
 		stud_score_file.close();
 		fstream cache("cache", fstream::out | fstream::app | fstream::binary);
@@ -184,6 +182,56 @@ public:
 
 		return stout;
 	}
+	stud_score stud_score_parse(string st) {
+		string tmp;
+		bool fl = false;
+		stud_score stout;
+		for (int i = 0, j = 0; i < st.length(); ++i) {
+			if (st[i] == '"') {
+				j++;
+				fl = j % 2;
+				//cout << 195 << " " << j << " ";
+				if (fl) {
+					if (tmp != "" && j == 1)
+						stout.id = stoi(tmp);
+					tmp = "";
+				}
+				else {
+					tmp = encryptDecrypt(tmp);
+					switch (j)
+					{
+					case 2:
+						stout.stud_id = tmp;
+						break;
+					case 4:
+						stout.subj = tmp;
+						break;
+					case 6:
+						stout.extype = (tmp == "exam") ? ExamType::exam : ExamType::zach;
+						break;
+					case 8:
+						stout.value = stof(tmp);
+						break;
+					default:
+						break;
+					}
+				}
+				continue;
+			}
+
+
+			if (fl) {
+				tmp += st[i];
+			}
+			else {
+				if (isdigit(st[i])) {
+					tmp += st[i];
+				}
+			}
+		}
+
+		return stout;
+	}
 
 	void add_student(string group, string id, string surname, string name, string middle_name = "ND") {
 		fstream stfile("Students.bin", fstream::in | fstream::binary);
@@ -228,14 +276,31 @@ public:
 	}
 
 
-	void get_student_score(string stud_id) {
+	vector<stud_score> get_student_score(string _stud_id) {
+		fstream stsc_file("Score.bin", fstream::in | fstream::binary);
+		string tmp;
+		vector<stud_score> scores;
 
+		while (!stsc_file.eof()) {
+			getline(stsc_file, tmp);
+			stud_score tmp_ssc = stud_score_parse(tmp);
+
+			//cout << tmp_ssc.stud_id << " " << _stud_id << "\n";
+			if (tmp_ssc.stud_id == _stud_id) {
+				scores.push_back(tmp_ssc);
+			}
+		}
+
+		stsc_file.close();
+		return scores;
 	}
 	int add_student_score(stud_score stud_sc) {
 		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
 
 		string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
-		stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
+		//stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
+		stud_score_file << "{" << stud_sc.id << "\"" << encryptDecrypt(stud_sc.stud_id) << "\"\"" << encryptDecrypt(stud_sc.subj) 
+			<< "\"\"" << encryptDecrypt(ex_type) << "\"\"" << encryptDecrypt(to_string(stud_sc.value)) << "\"}\n";
 
 		stud_score_file.close();
 
@@ -245,57 +310,44 @@ public:
 	void edit_student_score(stud_score stud_sc) {
 		//vector<stud_score> scores;
 
-		fstream stud_score_file("Score.bin", fstream::in | fstream::out | fstream::binary);
+		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
+		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
 		int n = 0;
-		string ch;
+		string tmp;
 		//int id;
 		while (!stud_score_file.eof()) {
-			//stud_score_file >> id;
-			//cout << "ch = " << ch << endl;
-			//n += 10;
-			//stud_score_file.seekg(n);
-			stud_score_file >> ch;
-			n += ch.size()+1;
+			getline(stud_score_file, tmp);
+			stud_score tmp_ssc = stud_score_parse(tmp);
 
-			if (atoi((char*)&ch) == stud_sc.id) {
+			if (tmp_ssc.id == stud_sc.id) {
 				// замена данных
-				stud_score_file.close();
-				fstream stud_score_file("Score.bin", fstream::out | fstream::binary);
-
-				cout << n;
+				tmp_ssc.extype = stud_sc.extype;
+				tmp_ssc.subj = stud_sc.subj;
+				tmp_ssc.value = stud_sc.value;
 				
-				string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
-				
-				stud_score_file.seekp(2);
-				stud_score_file.put('a');
-				//tmpf << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value;
+				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
+				tmp_file << "{" << tmp_ssc.id << "\"" << encryptDecrypt(tmp_ssc.stud_id) << "\"\"" << encryptDecrypt(tmp_ssc.subj)
+					<< "\"\"" << encryptDecrypt(ex_type) << "\"\"" << encryptDecrypt(to_string(tmp_ssc.value)) << "\"}\n";
 
+				while (!stud_score_file.eof()) {
+					getline(stud_score_file, tmp);
+					tmp_file << tmp << "\n";
+				}
+
+				
+				tmp_file.close();
 				stud_score_file.close();
+
+				remove("Score.bin");
+				rename("tmp.bin", "Score.bin");
 
 				return;
 			}
-
-			//if (stud_sc.stud_id == ch) {	// чтение, перенести отсюда отдельно
-			//	tmpscore.id = id;
-			//	tmpscore.stud_id = stud_sc.stud_id;
-			//	
-			//	stud_score_file >> tmp_n;
-			//	tmpscore.extype = tmp_n == "exam" ? ExamType::exam : ExamType::zach;
-
-			//	stud_score_file >> tmpscore.value;
-
-			//	scores.push_back(tmpscore);
-			//}
-
-			//n += 9;
-			//tmp_n = "";
-			//while (tmp_n != "endl") {
-			//	stud_score_file >> tmp_n;
-			//	n += tmp_n.length() + 1;
-			//}
-
+			tmp_file << tmp << "\n";
 		}
+		tmp_file.close();
 		stud_score_file.close();
+		remove("tmp.bin");
 		return;
 	}
 	
