@@ -154,7 +154,7 @@ public:
 
 		if (selectedItem == -1)
 		{
-			student stud = {"-1"};
+			student stud = {"", "-1"};
 			return stud;
 		}
 
@@ -170,9 +170,9 @@ public:
 
 		WWC::Cur2xy(0, 7);
 		
-		cout.width(70);  cout.fill('_'); cout << "_" << endl;
+		cout.width(75);  cout.fill('_'); cout << "_" << endl;
 		cout.width(4); cout << left << "id";
-		cout.width(32); cout << left << "|_Предмет";
+		cout.width(52); cout << left << "|_Предмет";
 		cout.width(9); cout << left << "|_Вид";
 		cout.width(10); cout << left << "|_Оценка" << endl;
 		cout.fill(' ');
@@ -185,20 +185,24 @@ public:
 			WWC::ConsColor(15);
 			cout << " | ";
 
-			cout.width(30);
+			cout.width(50);
 			cout << left << scr[i].subj << "| ";
 
 			cout.width(7);
 			cout << ((scr[i].extype == ExamType::exam) ? "exam" : "zach") << "| ";
 			
-			if (scr[i].value < 3)
+			if (scr[i].value == '+')
+				WWC::ConsColor(FOREGROUND_GREEN);
+			else if (scr[i].value == '-')
+				WWC::ConsColor(12);
+			else if (scr[i].value < 3)
 				WWC::ConsColor(12);
 			else if (scr[i].value >= 3 && scr[i].value < 4)
 				WWC::ConsColor(14);
 			else if (scr[i].value >= 4)
 				WWC::ConsColor(FOREGROUND_GREEN);
 			cout.width(8);
-			cout << scr[i].value << endl;
+			cout << ((scr[i].extype == ExamType::exam) ? scr[i].value : char(scr[i].value)) << endl;
 		}
 		WWC::ConsColor(15);
 

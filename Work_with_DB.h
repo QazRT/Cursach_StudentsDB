@@ -10,14 +10,20 @@
 
 using namespace std;
 
+enum class Sex : char { man, woman, CombatHelicopter };	// А давай
 enum class ExamType : char { exam, zach };
 
 struct student {
+	string group;
 	string id;
 	string surname;
 	string name;
-	string middle_name = "";
-	string group;
+	string middle_name = "ND";
+	string bday = "01.01.1999";
+	string admyear = "1999"; // Год поступления
+	string inst;
+	string kaf;
+	Sex sex = Sex::CombatHelicopter;
 };
 struct stud_score {
 	int id;
@@ -56,27 +62,24 @@ public:
 			fstream students_file("Students.bin", fstream::in | fstream::binary);
 			string tmp;
 			set<string> groups_set;
-			students_file >> tmp;
-			cout << tmp;
-			cache_write(tmp);
-			groups_set.insert(tmp);
+			//students_file >> tmp;
+			////cout << tmp;
+			//cache_write(tmp);
+			//groups_set.insert(tmp);
 			while (!students_file.eof()) {
-				students_file >> tmp;
-				if (tmp == "endl")
-				{
-					students_file >> tmp;
-					if (tmp != "endl")
-						groups_set.insert(tmp);
-				}
+				getline(students_file, tmp);
+				groups_set.insert(stud_parse(tmp).group);
+
 			}
+			groups_set.erase(groups_set.begin());
 			groups = groups_set;
 
-			for (int i = 0; i < groups_set.size(); ++i)
-			{
-				cache_write(" " + *groups_set.begin());
-				groups_set.erase(groups_set.begin());
+			//for (int i = 0; i < groups_set.size(); ++i)
+			//{
+			//	cache_write(" " + *groups_set.begin());
+			//	groups_set.erase(groups_set.begin());
 
-			}
+			//}
 			students_file.close();
 		}
 		else {
@@ -127,11 +130,8 @@ public:
 		string tmp;
 		int n = 0;
 		while (!students_file.eof()) {
-			students_file >> tmp;
-			if (tmp == "endl")
-			{
-				n++;
-			}
+			getline(students_file, tmp);
+			n++;
 		}
 		students_file.close();
 		return n-1;
@@ -165,6 +165,21 @@ public:
 						break;
 					case 10:
 						stout.middle_name = tmp;
+						break;
+					case 12:
+						stout.bday = tmp;
+						break;
+					case 14:
+						stout.admyear = tmp;
+						break;
+					case 16:
+						stout.inst = tmp;
+						break;
+					case 18:
+						stout.kaf = tmp;
+						break;
+					case 20:
+						stout.sex = (tmp == "man") ? Sex::man : (tmp == "woman" ? Sex::woman : Sex::CombatHelicopter);
 						break;
 					default:
 						break;
@@ -233,25 +248,28 @@ public:
 		return stout;
 	}
 
-	void add_student(string group, string id, string surname, string name, string middle_name = "ND") {
+	void add_student(student st) {
 		fstream stfile("Students.bin", fstream::in | fstream::binary);
 		
 		string tmp;
 		while (!stfile.eof()) {
 			getline(stfile, tmp);
-			if (stud_parse(tmp, 4).id == id) {
+			if (stud_parse(tmp, 4).id == st.id) {
 				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
 				return;
 			}
 		}
 
 		stfile.close();
+		
 		stfile.open("Students.bin", fstream::out | fstream::app | fstream::binary);
-		//students_file << group << " " << id << " " << surname << " " << name << " " << middle_name << " endl ";
-		stfile << "{\"" << encryptDecrypt(group) << "\"\"" << encryptDecrypt(id) << "\"\"" << encryptDecrypt(surname) << "\"\"" << encryptDecrypt(name) << "\"\"" << encryptDecrypt(middle_name) << "\"}\n";
+		string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
+		stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
+			<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
+			<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
 		stfile.close();
 
-		groups.insert(group);
+		groups.insert(st.group);
 
 		stud_count += 1;
 		cache_edit();
@@ -326,6 +344,7 @@ public:
 				tmp_ssc.value = stud_sc.value;
 				
 				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
+				cout << ex_type;
 				tmp_file << "{" << tmp_ssc.id << "\"" << encryptDecrypt(tmp_ssc.stud_id) << "\"\"" << encryptDecrypt(tmp_ssc.subj)
 					<< "\"\"" << encryptDecrypt(ex_type) << "\"\"" << encryptDecrypt(to_string(tmp_ssc.value)) << "\"}\n";
 

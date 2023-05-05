@@ -71,11 +71,11 @@ int main()
         break;
     case 0:
         //wwdb->add_student_score({4, "22¡0864", "Hu", ExamType::exam, 3});
-        //wwdb->add_student("¡»—Œ-02-22", "22¡0831", "asd", "asd", "asd");
         //cout << wwdb->encryptDecrypt("asd");
+        wwdb->add_student({ "¡»—Œ-02-22", "22¡0864", "asd", "asd", "asd", "20.03.2003", "2021", "» ¡", " ¡-2"});
         break;
     case 1:
-        wwdb->edit_student_score({3, "22¡0864", "Huas", ExamType::exam, 3.0});
+        wwdb->add_student_score({6, "22¡0864", "KYUV", ExamType::zach, '+'});
         break;
     }
 
