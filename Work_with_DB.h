@@ -248,6 +248,7 @@ public:
 		return stout;
 	}
 
+
 	void add_student(student st) {
 		fstream stfile("Students.bin", fstream::in | fstream::binary);
 		
@@ -274,6 +275,48 @@ public:
 		stud_count += 1;
 		cache_edit();
 	}
+
+	void edit_student(student st) {
+		fstream stfile("Students.bin", fstream::in | fstream::binary);
+		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		int n = 0;
+		string tmp;
+
+		while (!stfile.eof()) {
+			getline(stfile, tmp);
+			student tmp_st = stud_parse(tmp);
+
+			if (tmp_st.id == st.id) {
+				// замена данных
+				tmp_st = st;
+
+				string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
+				tmp_file << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
+					<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
+					<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
+
+				while (!stfile.eof()) {
+					getline(stfile, tmp);
+					tmp_file << tmp << "\n";
+				}
+
+
+				tmp_file.close();
+				stfile.close();
+
+				remove("Students.bin");
+				rename("tmp.bin", "Students.bin");
+
+				return;
+			}
+			tmp_file << tmp << "\n";
+		}
+		tmp_file.close();
+		stfile.close();
+		remove("tmp.bin");
+		return;
+	}
+
 
 	vector<student> get_students_by_group(string _group) {
 		vector<student> students;
@@ -326,8 +369,6 @@ public:
 		return stud_sc.id;
 	}
 	void edit_student_score(stud_score stud_sc) {
-		//vector<stud_score> scores;
-
 		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
 		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
 		int n = 0;

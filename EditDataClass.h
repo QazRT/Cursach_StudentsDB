@@ -8,7 +8,7 @@
 
 using namespace std;
 
-enum class editType : char { group, stud_id, onlyDigit, onlyAlpha, all };
+enum class editType : char { date, group, stud_id, onlyDigit, onlyAlpha, all };
 
 class EditDataClass {
 private:
@@ -19,11 +19,11 @@ public:
 		label = "";
 		data = "";
 	}
-	void setLabel(string _label = "¬ведите значение") {
-		if (_label.length() > 1)
-			this->label = _label;
+	void setData(string _data = "") {
+		if (_data.length() > 1)
+			this->data = _data;
 		else
-			label = "";
+			data = "";
 	}
 	bool isDigit(char ch) {
 		if (ch >= 48 and ch <= 57)
@@ -40,11 +40,13 @@ public:
 		return true;
 	}
 	bool isAlpha(int ch) {
-		if (ch >= 65 and ch <= 90)
+		if (ch >= 'a' and ch <= 'z')
 			return true;
-		if (ch >= 97 and ch <= 122)
+		if (ch >= 'A' and ch <= 'Z')
 			return true;
 		if (ch >= -200 and ch <= -1)
+			return true;
+		if (ch == ' ')
 			return true;
 		return false;
 	}
@@ -67,7 +69,7 @@ public:
 
 	string getData(enum class editType et) {
 		char ch = 0;
-		cout << label << endl << data;
+		cout << data;
 		while (ch != 13) {
 			ch = _getch();
 			if (ch == 8) {
@@ -78,6 +80,7 @@ public:
 				}
 				continue;
 			}
+
 			if (et == editType::stud_id) {
 				if (data.size() < 2)
 					if (isDigit(ch)) {
@@ -95,6 +98,19 @@ public:
 						data.push_back(ch);
 					}
 			}
+
+			if (et == editType::date) {
+				if (0 <= data.size() && data.size() < 10 && data.size() != 2 && data.size() != 5)
+					if (isDigit(ch)) {
+						cout << ch;
+						data.push_back(ch);
+					}
+				if (data.size() == 2 || data.size() == 5) {
+					cout << ".";
+					data.push_back('.');
+				}
+			}
+
 			if (et == editType::group) {
 				if (0 <= data.size() && data.size() <= 4)
 					if (isAlpha(ch)) {
@@ -111,16 +127,19 @@ public:
 						data.push_back(ch);
 					}
 			}
+
 			if (et == editType::onlyDigit)
 				if (isDigit(ch)) {
 					cout << ch;
 					data.push_back(ch);
 				}
+			
 			if (et == editType::onlyAlpha)
 				if (isAlpha(ch)) {
 					cout << ch;
 					data.push_back(ch);
 				}
+			
 			if (et == editType::all) {
 				cout << ch;
 				data.push_back(ch);

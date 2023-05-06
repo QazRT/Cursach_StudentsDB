@@ -39,6 +39,13 @@ int StudentEdit(student stud) {
     delete stud_edit_menu;
     return code;
 }
+student EditStudInfo(student stud) {
+    MenuClass* stud_edit_menu = new MenuClass("Øèôð ñòóäåíòà: " + stud.id);
+    stud = stud_edit_menu->EditStudInfoMenu(stud);
+
+    delete stud_edit_menu;
+    return stud;
+}
 
 int main()
 {
@@ -64,6 +71,7 @@ int main()
     if (stud_selectedItem.id == "-1")
         goto Groupsm;
 
+    StudEditm:
     int excode = StudentEdit(stud_selectedItem);
     switch (excode) {
     case -1:
@@ -72,7 +80,11 @@ int main()
     case 0:
         //wwdb->add_student_score({4, "22Á0864", "Hu", ExamType::exam, 3});
         //cout << wwdb->encryptDecrypt("asd");
-        wwdb->add_student({ "ÁÈÑÎ-02-22", "22Á0864", "asd", "asd", "asd", "20.03.2003", "2021", "ÈÊÁ", "ÊÁ-2"});
+        //wwdb->add_student({ "ÁÈÑÎ-02-22", "22Á0864", "asd", "asd", "asd", "20.03.2003", "2021", "ÈÊÁ", "ÊÁ-2"});
+        stud_selectedItem = EditStudInfo(stud_selectedItem);
+        wwdb->edit_student(stud_selectedItem);
+        system("cls");
+        goto StudEditm;
         break;
     case 1:
         wwdb->add_student_score({6, "22Á0864", "KYUV", ExamType::zach, '+'});
