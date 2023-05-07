@@ -56,6 +56,20 @@ student EditStudInfo(student stud) {
     return stud;
 }
 
+bool ExitMenu() {
+    MenuClass* ExMenu = new MenuClass("");
+    ExMenu->addMenuItem("Да");
+    ExMenu->addMenuItem("Нет");
+    cout << "Вы точно хотите выйти?";
+    if (!ExMenu->ItemSelect({ {0, {FOREGROUND_INTENSITY, 0, FOREGROUND_GREEN}}, {1, {FOREGROUND_INTENSITY, 0, FOREGROUND_RED}} })) {
+        system("cls");
+        exit(1);
+    }
+    system("cls");
+    WWC::ConsColor(15);
+    return false;
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -91,6 +105,11 @@ int main()
         delete edc;
         goto Groupsm;
     }
+    else if (selectedItem == "-1") {
+        system("cls");
+        ExitMenu();
+        goto Groupsm;
+    }
 
     Studlistm:
     student stud_selectedItem = StudentsListMenu(wwdb->get_students_by_group(selectedItem));
@@ -115,6 +134,8 @@ int main()
         break;
     case 1:
         //wwdb->add_student_score({6, "22Б0864", "KYUV", ExamType::zach, '+'});
+        break;
+    case 2:
         break;
     }
 

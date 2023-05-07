@@ -82,7 +82,7 @@ public:
 		}
 	}
 
-	int ItemSelect(bool is_1_menu = false, map<int, text_color> colors = {}) {
+	int ItemSelect(map<int, text_color> colors = {}) {
 		char ch = 0;
 		draw(colors);
 		WWC::ShowConsoleCursor(false);
@@ -132,10 +132,8 @@ public:
 			}
 			if (ch == 75 || ch == 97 || ch == 8) // Left
 			{
-				if (!is_1_menu) {
-					selectedItem = -1;
-					break;
-				}
+				selectedItem = -1;
+				break;
 			}
 			if (ch == 77 || ch == 100) // Right
 				break;
@@ -144,18 +142,20 @@ public:
 		}
 		//WWC::ShowConsoleCursor(true); ZAD
 		WWC::Cur2xy(0, 0);
-		return ch;
+		return selectedItem;
 	}
 
 
 	string group_select() {
 		st = SelectType::string;
-		ItemSelect(true);
+		ItemSelect();
 		system("cls");
 		WWC::ConsColor(15);
 
 		if (selectedItem == 'n')
 			return "n";
+		if (selectedItem == -1)
+			return "-1";
 
 		return string_items[selectedItem];
 	}
@@ -223,7 +223,7 @@ public:
 
 
 		WWC::Cur2xy(0, 0);
-		ItemSelect(false, { {2, {12, 0, FOREGROUND_RED}} });
+		ItemSelect({ {2, {12, 0, FOREGROUND_RED}} });
 		system("cls");
 
 		WWC::ConsColor(15);
@@ -252,7 +252,7 @@ public:
 
 		EditDataClass* edc = new EditDataClass();
 		while (true) {
-			ItemSelect(false, { {9, {13, 14, FOREGROUND_BLUE}} });
+			ItemSelect({ {9, {13, 14, FOREGROUND_BLUE}} });
 			if (selectedItem == 9)
 				break;
 			if (selectedItem == -1)
@@ -323,7 +323,8 @@ public:
 				cout << string_items[i] << " ";
 		}
 	}
-	void GorItemSelect(int x = 0, int y = 0) {
+	int GorItemSelect(int x = 0, int y = 0) {
+		WWC::Cur2xy(x, y);
 		GorDraw();
 
 
@@ -350,6 +351,8 @@ public:
 
 			Sleep(10);
 		}
+
+		return selectedItem;
 	}
 
 	string sexselect(int x = 0, int y = 0) {

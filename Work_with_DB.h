@@ -7,6 +7,7 @@
 #include <conio.h>
 #include <algorithm>
 #include <stdio.h>
+#include <io.h>
 
 using namespace std;
 
@@ -40,6 +41,11 @@ private:
 
 public:
 	void __init__() {
+		if (_access("_Score.bin", 0) != -1) 
+			rename("_Score.bin", "Score.bin");
+		if (_access("_Students.bin", 0) != -1) 
+			rename("_Students.bin", "Students.bin");
+
 		fstream students_file("Students.bin", fstream::out | fstream::app | fstream::binary);
 		students_file.close();
 		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
@@ -306,8 +312,14 @@ public:
 				tmp_file.close();
 				stfile.close();
 
-				remove("Students.bin");
-				rename("tmp.bin", "Students.bin");
+				try {
+					rename("Students.bin", "_Students.bin");
+					rename("tmp.bin", "Students.bin");
+					remove("_Students.bin");
+				}
+				catch (exception e) {
+					WWC::ErrOut("Egor: Ошибка записи базы!");
+				}
 
 				return;
 			}
@@ -400,8 +412,14 @@ public:
 				tmp_file.close();
 				stud_score_file.close();
 
-				remove("Score.bin");
-				rename("tmp.bin", "Score.bin");
+				try {
+					rename("Score.bin", "_Score.bin");
+					rename("tmp.bin", "Score.bin");
+					remove("_Score.bin");
+				}
+				catch (exception e) {
+					WWC::ErrOut("Egor: Ошибка записи базы!");
+				}
 
 				return;
 			}
@@ -411,6 +429,5 @@ public:
 		stud_score_file.close();
 		remove("tmp.bin");
 		return;
-	}
-	
+	}	
 };
