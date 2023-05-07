@@ -117,15 +117,15 @@ public:
 						cout << ch;
 						data.push_back(ch);
 					}
-				if (data.size() == 4 || data.size() == 7) {
-					cout << "-";
-					data.push_back('-');
-				}
 				if (data.size() == 5 || data.size() == 6 || data.size() == 8 || data.size() == 9)
 					if (isDigit(ch)) {
 						cout << ch;
 						data.push_back(ch);
 					}
+				if (data.size() == 4 || data.size() == 7) {
+					cout << "-";
+					data.push_back('-');
+				}
 			}
 
 			if (et == editType::onlyDigit)

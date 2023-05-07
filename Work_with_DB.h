@@ -248,22 +248,24 @@ public:
 		return stout;
 	}
 
-
-	void add_student(student st) {
+	bool check_student(student st) {
 		fstream stfile("Students.bin", fstream::in | fstream::binary);
-		
+
 		string tmp;
 		while (!stfile.eof()) {
 			getline(stfile, tmp);
 			if (stud_parse(tmp, 4).id == st.id) {
 				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
-				return;
+				return false;
 			}
 		}
 
 		stfile.close();
-		
-		stfile.open("Students.bin", fstream::out | fstream::app | fstream::binary);
+		return true;
+	}
+
+	void add_student(student st) {
+		fstream stfile("Students.bin", fstream::out | fstream::app | fstream::binary);
 		string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
 		stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
 			<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)

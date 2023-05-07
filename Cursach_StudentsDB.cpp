@@ -32,6 +32,15 @@ student StudentsListMenu(vector<student> studs) {
     return stud_selectedItem;
 }
 
+void AddStudent(student& stud) {
+    system("cls");
+    MenuClass* stud_add_menu = new MenuClass("Изменение студента с шифром: " + stud.id);
+    stud = stud_add_menu->EditStudInfoMenu(stud);
+
+    delete stud_add_menu;
+    return;
+}
+
 int StudentEdit(student stud) {
     MenuClass* stud_edit_menu = new MenuClass("Студент: " + stud.id + " " + stud.surname + " " + stud.name + " " + stud.middle_name);
     int code = stud_edit_menu->stud_edit(stud.id);
@@ -40,7 +49,7 @@ int StudentEdit(student stud) {
     return code;
 }
 student EditStudInfo(student stud) {
-    MenuClass* stud_edit_menu = new MenuClass("Шифр студента: " + stud.id);
+    MenuClass* stud_edit_menu = new MenuClass("Изменение студента с шифром: " + stud.id);
     stud = stud_edit_menu->EditStudInfoMenu(stud);
 
     delete stud_edit_menu;
@@ -64,6 +73,24 @@ int main()
 
     Groupsm:
     GroupMenu(wwdb->get_groups());
+    if (selectedItem == "n") {
+        system("cls");
+        student stud;
+        EditDataClass* edc = new EditDataClass();
+        while (true) {
+            cout << "Введите шифр студента: ";
+            WWC::ShowConsoleCursor(true);
+            stud.id = edc->getData(editType::stud_id);
+
+            if (wwdb->check_student(stud))
+                break;
+        }
+
+        AddStudent(stud);
+        wwdb->add_student(stud);
+        delete edc;
+        goto Groupsm;
+    }
 
     Studlistm:
     student stud_selectedItem = StudentsListMenu(wwdb->get_students_by_group(selectedItem));
@@ -87,7 +114,7 @@ int main()
         goto StudEditm;
         break;
     case 1:
-        wwdb->add_student_score({6, "22Б0864", "KYUV", ExamType::zach, '+'});
+        //wwdb->add_student_score({6, "22Б0864", "KYUV", ExamType::zach, '+'});
         break;
     }
 

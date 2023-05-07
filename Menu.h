@@ -54,7 +54,7 @@ public:
 	}
 
 	void item_print(int i, bool fl = false) {
-		switch(st) {
+		switch (st) {
 		case SelectType::string:
 			cout << "•" << string_items[i] << endl;
 			break;
@@ -88,16 +88,22 @@ public:
 		WWC::ShowConsoleCursor(false);
 		while (ch != 13) {
 			ch = _getch();
+
+			if (ch == 'n' || ch == 'N') {
+				selectedItem = 'n';
+				break;
+			}
+
 			if (ch == 72 || ch == 119) // Up
 			{
-				WWC::Cur2xy(0, selectedItem+1);
+				WWC::Cur2xy(0, selectedItem + 1);
 				if ((colors[selectedItem].forc | colors[selectedItem].bgc) == 0)
 					WWC::ConsColor(FOREGROUND_INTENSITY);
 				else
 					WWC::ConsColor(colors[selectedItem].forc, colors[selectedItem].bgc);
 				item_print(selectedItem);
 				selectedItem -= selectedItem > 0 ? 1 : 0;
-				WWC::Cur2xy(0, selectedItem+1);
+				WWC::Cur2xy(0, selectedItem + 1);
 
 				if (colors[selectedItem].hoverc == 0)
 					WWC::ConsColor(FOREGROUND_GREEN);
@@ -114,7 +120,7 @@ public:
 				else
 					WWC::ConsColor(colors[selectedItem].forc, colors[selectedItem].bgc);
 				item_print(selectedItem);
-				selectedItem += selectedItem < count_items-1 ? 1 : 0;
+				selectedItem += selectedItem < count_items - 1 ? 1 : 0;
 				WWC::Cur2xy(0, selectedItem + 1);
 
 				if (colors[selectedItem].hoverc == 0)
@@ -133,7 +139,7 @@ public:
 			}
 			if (ch == 77 || ch == 100) // Right
 				break;
-			
+
 			Sleep(10);
 		}
 		//WWC::ShowConsoleCursor(true); ZAD
@@ -147,11 +153,10 @@ public:
 		ItemSelect(true);
 		system("cls");
 		WWC::ConsColor(15);
-		/*WWC::ConsColor(15);
-		EditDataClass* cl = new EditDataClass();
-		cl->setLabel("Введите число");
-		int selectItem = cl->getData(editType::onlyDigit, 0, count_items);
-		delete cl;*/
+
+		if (selectedItem == 'n')
+			return "n";
+
 		return string_items[selectedItem];
 	}
 
@@ -163,7 +168,7 @@ public:
 
 		if (selectedItem == -1)
 		{
-			student stud = {"", "-1"};
+			student stud = { "", "-1" };
 			return stud;
 		}
 
@@ -178,7 +183,8 @@ public:
 		addMenuItem("Удалить студента");
 
 		WWC::Cur2xy(0, 7);
-		
+		WWC::ConsColor(15);
+
 		cout.width(75);  cout.fill('_'); cout << "_" << endl;
 		cout.width(4); cout << left << "id";
 		cout.width(52); cout << left << "|_Предмет";
@@ -199,7 +205,7 @@ public:
 
 			cout.width(7);
 			cout << ((scr[i].extype == ExamType::exam) ? "exam" : "zach") << "| ";
-			
+
 			if (scr[i].value == '+')
 				WWC::ConsColor(FOREGROUND_GREEN);
 			else if (scr[i].value == '-')
@@ -233,21 +239,24 @@ public:
 
 
 		addMenuItem(make_pair("Группа: ", stud.group));
-		addMenuItem(make_pair("Фамилия: ", stud.surname ));
-		addMenuItem(make_pair("Имя: ", stud.name ));
-		addMenuItem(make_pair("Отчество: ", stud.middle_name ));
-		addMenuItem(make_pair("Дата рождения: ", stud.bday ));
-		addMenuItem(make_pair("Год поступления: ", stud.admyear ));
-		addMenuItem(make_pair("Институт: ", stud.inst ));
-		addMenuItem(make_pair("Кафедра: ", stud.kaf ));
-		string sex = ((stud.sex == Sex::man) ? "man" : (stud.sex == Sex::woman ? "woman" : "CombatHelicopter"));
-		addMenuItem(make_pair("Пол: ", sex ));
+		addMenuItem(make_pair("Фамилия: ", stud.surname));
+		addMenuItem(make_pair("Имя: ", stud.name));
+		addMenuItem(make_pair("Отчество: ", stud.middle_name));
+		addMenuItem(make_pair("Дата рождения: ", stud.bday));
+		addMenuItem(make_pair("Год поступления: ", stud.admyear));
+		addMenuItem(make_pair("Институт: ", stud.inst));
+		addMenuItem(make_pair("Кафедра: ", stud.kaf));
+		string sex = ((stud.sex == Sex::man) ? "Мужской" : (stud.sex == Sex::woman ? "Женский" : "Боевой вертолет КА-52"));
+		addMenuItem(make_pair("Пол: ", sex));
 		addMenuItem(make_pair("\nСохранить", ""));
-		
+
+		EditDataClass* edc = new EditDataClass();
 		while (true) {
 			ItemSelect(false, { {9, {13, 14, FOREGROUND_BLUE}} });
 			if (selectedItem == 9)
 				break;
+			if (selectedItem == -1)
+				return stud;
 
 			WWC::Cur2xy(0, selectedItem + 1);
 			cout << string2_items[selectedItem].first; WWC::ConsColor(15);// cout << string2_items[selectedItem].second;
@@ -257,8 +266,6 @@ public:
 			editType et;
 			switch (selectedItem)
 			{
-			case -1:
-				return stud;
 			case 0:
 				et = editType::group;
 				break;
@@ -268,17 +275,29 @@ public:
 			case 5:
 				et = editType::onlyDigit;
 				break;
+			case 8:
+			{
+				MenuClass* sex_sel = new MenuClass("");
+				string sex = sex_sel->sexselect(5, selectedItem + 1);
+				delete sex_sel;
+				string2_items[selectedItem].second = sex;
+				system("cls");
+				continue;
+			}
+			case 7:
+				et = editType::all;
+				break;
 			default:
 				et = editType::onlyAlpha;
 				break;
 			}
 
-			EditDataClass* edc = new EditDataClass();
 			edc->setData(string2_items[selectedItem].second);
 			string data = edc->getData(et);
 			string2_items[selectedItem].second = data;
 			system("cls");
 		}
+		delete edc;
 
 		stud.group = string2_items[0].second;
 		stud.surname = string2_items[1].second;
@@ -288,10 +307,57 @@ public:
 		stud.admyear = string2_items[5].second;
 		stud.inst = string2_items[6].second;
 		stud.kaf = string2_items[7].second;
-		stud.sex = (string2_items[8].second == "man") ? Sex::man : (string2_items[7].second == "woman" ? Sex::woman : Sex::CombatHelicopter);
-
-
+		stud.sex = (string2_items[8].second == "Мужской") ? Sex::man : (string2_items[8].second == "Женский" ? Sex::woman : Sex::CombatHelicopter);
 
 		return stud;
+	}
+
+	void GorDraw() {
+		for (int i = 0; i < count_items; ++i) {
+			if (i == selectedItem) {
+				WWC::ConsColor(FOREGROUND_GREEN);
+				cout << string_items[i] << " ";
+				WWC::ConsColor(FOREGROUND_INTENSITY);
+			}
+			else
+				cout << string_items[i] << " ";
+		}
+	}
+	void GorItemSelect(int x = 0, int y = 0) {
+		GorDraw();
+
+
+		char ch = 0;
+		WWC::ShowConsoleCursor(false);
+		while (ch != 13) {
+			ch = _getch();
+
+			if (ch == 8) {
+				selectedItem = -1;
+				break;
+			}
+			if (ch == 75 || ch == 97) // Left
+			{
+				selectedItem -= selectedItem > 0 ? 1 : 0;
+				WWC::Cur2xy(x, y);
+				GorDraw();
+			}
+			if (ch == 77 || ch == 100) { // Right
+				selectedItem += selectedItem < count_items - 1 ? 1 : 0;
+				WWC::Cur2xy(x, y);
+				GorDraw();
+			}
+
+			Sleep(10);
+		}
+	}
+
+	string sexselect(int x = 0, int y = 0) {
+		addMenuItem("Мужской");
+		addMenuItem("Женский");
+		addMenuItem("Боевой вертолет КА-52");
+
+		GorItemSelect(x, y);
+		return string_items[selectedItem];
 	}
 };
