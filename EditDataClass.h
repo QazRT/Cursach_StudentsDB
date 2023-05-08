@@ -141,8 +141,10 @@ public:
 				}
 			
 			if (et == editType::all) {
-				cout << ch;
-				data.push_back(ch);
+				if (ch != '\"' && ch != 13 && ch != '\n') {
+					cout << ch;
+					data.push_back(ch);
+				}
 			}
 		}
 		return data;

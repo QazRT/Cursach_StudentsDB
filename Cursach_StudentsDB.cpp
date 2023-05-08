@@ -103,6 +103,7 @@ int main()
         AddStudent(stud);
         wwdb->add_student(stud);
         delete edc;
+        system("cls");
         goto Groupsm;
     }
     else if (selectedItem == "-1") {
@@ -123,17 +124,22 @@ int main()
     case -1:
         goto Studlistm;
         break;
-    case 0:
+    case 0: {
         //wwdb->add_student_score({4, "22Á0864", "Hu", ExamType::exam, 3});
         //cout << wwdb->encryptDecrypt("asd");
         //wwdb->add_student({ "ÁÈÑÎ-02-22", "22Á0864", "asd", "asd", "asd", "20.03.2003", "2021", "ÈÊÁ", "ÊÁ-2"});
-        stud_selectedItem = EditStudInfo(stud_selectedItem);
-        wwdb->edit_student(stud_selectedItem);
+        student tmp = EditStudInfo(stud_selectedItem);
+        if (tmp.id != "-1") {
+            wwdb->edit_student(tmp);
+            stud_selectedItem = tmp;
+        }
+
         system("cls");
         goto StudEditm;
-        break;
+    }
+    break;
     case 1:
-        //wwdb->add_student_score({6, "22Á0864", "KYUV", ExamType::zach, '+'});
+        wwdb->add_student_score({6, "22Á0864", "KYUV", ExamType::zach, '-'});
         break;
     case 2:
         break;

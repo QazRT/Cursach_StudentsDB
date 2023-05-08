@@ -144,6 +144,7 @@ public:
 	}
 
 	student stud_parse(string st, int jsr = 0) {
+		st = encryptDecrypt(st);
 		string tmp;
 		bool fl = false;
 		student stout;
@@ -154,7 +155,6 @@ public:
 				if (fl)
 					tmp = "";
 				else {
-					tmp = encryptDecrypt(tmp);
 					switch (j)
 					{
 					case 2:
@@ -204,6 +204,7 @@ public:
 		return stout;
 	}
 	stud_score stud_score_parse(string st) {
+		st = encryptDecrypt(st);
 		string tmp;
 		bool fl = false;
 		stud_score stout;
@@ -218,7 +219,6 @@ public:
 					tmp = "";
 				}
 				else {
-					tmp = encryptDecrypt(tmp);
 					switch (j)
 					{
 					case 2:
@@ -273,9 +273,13 @@ public:
 	void add_student(student st) {
 		fstream stfile("Students.bin", fstream::out | fstream::app | fstream::binary);
 		string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
-		stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
-			<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
-			<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
+		//stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
+		//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
+		//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
+		stfile << encryptDecrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+			+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
+			+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
+		
 		stfile.close();
 
 		groups.insert(st.group);
@@ -299,9 +303,13 @@ public:
 				tmp_st = st;
 
 				string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
-				tmp_file << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
-					<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
-					<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
+				//tmp_file << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
+				//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
+				//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
+				tmp_file << encryptDecrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+					+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
+					+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
+				groups.insert(st.group);
 
 				while (!stfile.eof()) {
 					getline(stfile, tmp);
@@ -374,8 +382,8 @@ public:
 
 		string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
 		//stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
-		stud_score_file << "{" << stud_sc.id << "\"" << encryptDecrypt(stud_sc.stud_id) << "\"\"" << encryptDecrypt(stud_sc.subj) 
-			<< "\"\"" << encryptDecrypt(ex_type) << "\"\"" << encryptDecrypt(to_string(stud_sc.value)) << "\"}\n";
+		stud_score_file << encryptDecrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
 
 		stud_score_file.close();
 

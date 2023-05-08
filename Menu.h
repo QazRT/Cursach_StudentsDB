@@ -189,7 +189,7 @@ public:
 		cout.width(4); cout << left << "id";
 		cout.width(52); cout << left << "|_Предмет";
 		cout.width(9); cout << left << "|_Вид";
-		cout.width(10); cout << left << "|_Оценка" << endl;
+		cout.width(10); cout << left << "|_Оценка"; cout << "|" << endl;
 		cout.fill(' ');
 
 		WwDB* wwdb = new WwDB();
@@ -206,18 +206,24 @@ public:
 			cout.width(7);
 			cout << ((scr[i].extype == ExamType::exam) ? "exam" : "zach") << "| ";
 
-			if (scr[i].value == '+')
+			cout.width(8);
+			if (scr[i].value == '+') {
 				WWC::ConsColor(FOREGROUND_GREEN);
-			else if (scr[i].value == '-')
+				cout << "Зачёт" << endl;
+				continue;
+			}
+			else if (scr[i].value == '-') {
 				WWC::ConsColor(12);
+				cout << "Незачёт" << endl;
+				continue;
+			}
 			else if (scr[i].value < 3)
 				WWC::ConsColor(12);
 			else if (scr[i].value >= 3 && scr[i].value < 4)
 				WWC::ConsColor(14);
 			else if (scr[i].value >= 4)
 				WWC::ConsColor(FOREGROUND_GREEN);
-			cout.width(8);
-			cout << ((scr[i].extype == ExamType::exam) ? scr[i].value : char(scr[i].value)) << endl;
+			cout << scr[i].value << endl;
 		}
 		WWC::ConsColor(15);
 
@@ -255,8 +261,10 @@ public:
 			ItemSelect({ {9, {13, 14, FOREGROUND_BLUE}} });
 			if (selectedItem == 9)
 				break;
-			if (selectedItem == -1)
-				return stud;
+			if (selectedItem == -1) {
+				system("cls");
+				return {"", "-1"};
+			}
 
 			WWC::Cur2xy(0, selectedItem + 1);
 			cout << string2_items[selectedItem].first; WWC::ConsColor(15);// cout << string2_items[selectedItem].second;
