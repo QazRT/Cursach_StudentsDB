@@ -70,6 +70,20 @@ bool ExitMenu() {
     return false;
 }
 
+stud_score EditStudScore(string stud_id) {
+    MenuClass* EDSc = new MenuClass("Изменение данных зачетки");
+    stud_score stsc = EDSc->EditStudScoreMenu(stud_id);
+    delete EDSc;
+    if (stsc.stud_id == "-1")
+        return stsc;
+    
+    EDSc = new MenuClass("Изменение данных оценки");
+    stsc = EDSc->EditScoreInfoMenu(stsc);
+    delete EDSc;
+
+    return stsc;
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -138,9 +152,19 @@ int main()
         goto StudEditm;
     }
     break;
-    case 1:
-        wwdb->add_student_score({6, "22Б0864", "KYUV", ExamType::zach, '-'});
-        break;
+    case 1: {
+        stud_score stsc = EditStudScore(stud_selectedItem.id);
+
+        if (stsc.stud_id == "-1")
+            goto StudEditm;
+        else if (stsc.id == -1) {
+            stsc.id = wwdb->get_max_score_id() + 1;
+            wwdb->add_student_score(stsc);
+        }
+        else
+            wwdb->edit_student_score(stsc);
+        goto StudEditm;
+        }
     case 2:
         break;
     }

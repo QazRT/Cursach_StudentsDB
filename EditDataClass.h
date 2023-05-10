@@ -8,7 +8,7 @@
 
 using namespace std;
 
-enum class editType : char { date, group, stud_id, onlyDigit, onlyAlpha, all };
+enum class editType : char { date, group, stud_id, floatDigit, onlyDigit, onlyAlpha, all };
 
 class EditDataClass {
 private:
@@ -130,6 +130,12 @@ public:
 
 			if (et == editType::onlyDigit)
 				if (isDigit(ch)) {
+					cout << ch;
+					data.push_back(ch);
+				}
+
+			if (et == editType::floatDigit)
+				if (isDigit(ch) || ch == '.') {
 					cout << ch;
 					data.push_back(ch);
 				}

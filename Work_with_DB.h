@@ -29,14 +29,15 @@ struct student {
 struct stud_score {
 	int id;
 	string stud_id;
-	string subj;
-	ExamType extype;
-	float value;
+	string subj = "";
+	ExamType extype = ExamType::exam;
+	short value = 0;
 };
 
 class WwDB {
 private:
 	int stud_count = 0;
+	int max_scid = 0;
 	set<string> groups;
 
 public:
@@ -55,48 +56,17 @@ public:
 
 		stud_count = students_count();
 
-		cache_edit();
-	}
 
-	void cache_edit() {
-		fstream cache;
-		cache.open("cache", fstream::in | fstream::binary);
-		
-		if (cache.peek() == EOF || !cache.is_open()) {
-			cache.close();
-
-			fstream students_file("Students.bin", fstream::in | fstream::binary);
-			string tmp;
-			set<string> groups_set;
-			//students_file >> tmp;
-			////cout << tmp;
-			//cache_write(tmp);
-			//groups_set.insert(tmp);
-			while (!students_file.eof()) {
-				getline(students_file, tmp);
-				groups_set.insert(stud_parse(tmp).group);
-
-			}
-			groups_set.erase(groups_set.begin());
-			groups = groups_set;
-
-			//for (int i = 0; i < groups_set.size(); ++i)
-			//{
-			//	cache_write(" " + *groups_set.begin());
-			//	groups_set.erase(groups_set.begin());
-
-			//}
-			students_file.close();
+		students_file.open("Students.bin", fstream::in | fstream::binary);
+		string tmp;
+		while (!students_file.eof()) {
+			getline(students_file, tmp);
+			groups.insert(stud_parse(tmp, 2).group);
 		}
-		else {
-			string tmp;
-			while (!cache.eof()) {
-				cache >> tmp;
-				groups.insert(tmp);
-			}
+		groups.erase(groups.begin());
+		students_file.close();
 
-			cache.close();
-		}
+		init_max_score_id();
 	}
 
 	vector<string> get_groups() {
@@ -104,21 +74,22 @@ public:
 		return v;
 	}
 
-	char* cache_read(int buff_size, int start_location=0) {
-		char out[100];
-		fstream cache("cache", fstream::in | fstream::binary);
-		cache.seekg(start_location);
-		cache.read((char*)&out, buff_size);
-		cache.close();
-		return out;
+	void init_max_score_id() {
+		fstream stsc_file("Score.bin", fstream::in | fstream::binary);
+		string tmp;
+		int _maxid = 0;
+		while (!stsc_file.eof()) {
+			getline(stsc_file, tmp);
+			_maxid = stud_score_parse(tmp, 1).id;
+			 if (_maxid > max_scid)
+				 max_scid = _maxid;
+		}
+		stsc_file.close();
 	}
 
-	void cache_write(string _cache, fstream::openmode openmode = (fstream::app)) {
-		fstream cache("cache", openmode | fstream::out | fstream::binary);
-		cache << _cache;
-		cache.close();
+	int get_max_score_id() {
+		return max_scid;
 	}
-
 
 	string encryptDecrypt(string toEncrypt) {
 		char key[3] = { 'Z', 'A', 'D' };
@@ -203,7 +174,7 @@ public:
 
 		return stout;
 	}
-	stud_score stud_score_parse(string st) {
+	stud_score stud_score_parse(string st, int jsr = 0) {
 		st = encryptDecrypt(st);
 		string tmp;
 		bool fl = false;
@@ -239,7 +210,8 @@ public:
 				}
 				continue;
 			}
-
+			if (j > 0 && j == jsr)
+				return stout;
 
 			if (fl) {
 				tmp += st[i];
@@ -285,7 +257,6 @@ public:
 		groups.insert(st.group);
 
 		stud_count += 1;
-		cache_edit();
 	}
 
 	void edit_student(student st) {
@@ -309,6 +280,7 @@ public:
 				tmp_file << encryptDecrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
 					+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
 					+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
+
 				groups.insert(st.group);
 
 				while (!stfile.eof()) {
@@ -387,6 +359,7 @@ public:
 
 		stud_score_file.close();
 
+		max_scid++;
 
 		return stud_sc.id;
 	}
@@ -408,8 +381,8 @@ public:
 				
 				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
 				cout << ex_type;
-				tmp_file << "{" << tmp_ssc.id << "\"" << encryptDecrypt(tmp_ssc.stud_id) << "\"\"" << encryptDecrypt(tmp_ssc.subj)
-					<< "\"\"" << encryptDecrypt(ex_type) << "\"\"" << encryptDecrypt(to_string(tmp_ssc.value)) << "\"}\n";
+				tmp_file << encryptDecrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
 
 				while (!stud_score_file.eof()) {
 					getline(stud_score_file, tmp);

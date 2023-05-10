@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include <map>
+#include <iomanip>
 #include "EditDataClass.h"
 #include "WorkWithConsole.h"
 #include "Work_with_DB.h"
@@ -82,14 +83,14 @@ public:
 		}
 	}
 
-	int ItemSelect(map<int, text_color> colors = {}) {
+	int ItemSelect(map<int, text_color> colors = {}, bool fl = false) {
 		char ch = 0;
 		draw(colors);
 		WWC::ShowConsoleCursor(false);
 		while (ch != 13) {
 			ch = _getch();
 
-			if (ch == 'n' || ch == 'N') {
+			if (fl && (ch == 'n' || ch == 'N' || ch == 'т' || ch == 'Т')) {
 				selectedItem = 'n';
 				break;
 			}
@@ -148,7 +149,7 @@ public:
 
 	string group_select() {
 		st = SelectType::string;
-		ItemSelect();
+		ItemSelect({}, true);
 		system("cls");
 		WWC::ConsColor(15);
 
@@ -258,7 +259,7 @@ public:
 
 		EditDataClass* edc = new EditDataClass();
 		while (true) {
-			ItemSelect({ {9, {13, 14, FOREGROUND_BLUE}} });
+			ItemSelect();
 			if (selectedItem == 9)
 				break;
 			if (selectedItem == -1) {
@@ -318,6 +319,111 @@ public:
 		stud.sex = (string2_items[8].second == "Мужской") ? Sex::man : (string2_items[8].second == "Женский" ? Sex::woman : Sex::CombatHelicopter);
 
 		return stud;
+	}
+
+	stud_score EditStudScoreMenu(string stud_id) {
+		st = SelectType::string;
+
+		WWC::ConsColor(15);
+
+		WwDB* wwdb = new WwDB();
+		vector<stud_score> scr = wwdb->get_student_score(stud_id);
+
+		for (int i = 0; i < scr.size(); ++i)
+			addMenuItem(scr[i].subj);
+		addMenuItem("Добавить");
+		ItemSelect();
+
+		system("cls");
+		WWC::ConsColor(15);
+
+		if (selectedItem == -1)
+			return { -2, "-1" };
+
+		if (selectedItem == scr.size()) {
+			return { -1, stud_id };
+		}
+
+
+		return scr[selectedItem];
+	}
+
+	stud_score EditScoreInfoMenu(stud_score stsc) {
+		st = SelectType::EditField;
+
+		addMenuItem(make_pair("Предмет: ", stsc.subj));
+		addMenuItem(make_pair("Тип оценивания: ", ((stsc.extype == ExamType::exam) ? "Экзамен" : "Зачёт")));
+		string oc;
+		if (stsc.extype == ExamType::exam)
+			oc = to_string(stsc.value);
+		else if (stsc.value == '+')
+			oc = "Зачёт";
+		else
+			oc = "Незачёт";
+		addMenuItem(make_pair("Оценка: ", oc));
+		addMenuItem(make_pair("\nСохранить", ""));
+
+		EditDataClass* edc = new EditDataClass();
+		while (true) {
+			ItemSelect();
+			if (selectedItem == 3)
+				break;
+			if (selectedItem == -1) {
+				system("cls");
+				return { -1 };
+			}
+
+			WWC::Cur2xy(0, selectedItem + 1);
+			cout << string2_items[selectedItem].first; WWC::ConsColor(15);
+
+			WWC::ShowConsoleCursor(true);
+
+			editType et;
+			switch (selectedItem) 
+			{
+			case 1:
+			{
+				MenuClass* ExTSel = new MenuClass("");
+				ExTSel->addMenuItem("Экзамен");
+				ExTSel->addMenuItem("Зачёт");
+				string2_items[selectedItem].second = ExTSel->string_items[ExTSel->GorItemSelect(16, selectedItem + 1)];
+				delete ExTSel;
+				system("cls");
+				continue;
+			}
+			case 2:
+				if (string2_items[1].second == "Зачёт") {
+					MenuClass* ZNZSel = new MenuClass("");
+					ZNZSel->addMenuItem("Зачёт");
+					ZNZSel->addMenuItem("Незачёт");
+					string2_items[selectedItem].second = ZNZSel->string_items[ZNZSel->GorItemSelect(8, selectedItem + 1)];
+					delete ZNZSel;
+					system("cls");
+					continue;
+				}
+				else
+					et = editType::onlyDigit;
+				break;
+			default:
+				et = editType::onlyAlpha;
+				break;
+			}
+
+			edc->setData(string2_items[selectedItem].second);
+			string data = edc->getData(et);
+			string2_items[selectedItem].second = data;
+			system("cls");
+		}
+		delete edc;
+
+		stsc.subj = string2_items[0].second;
+		stsc.extype = (string2_items[1].second == "Экзамен" ? ExamType::exam : ExamType::zach);
+		if (stsc.extype == ExamType::exam)
+			stsc.value = stoi(string2_items[2].second);
+		else
+			stsc.value = string2_items[2].second == "Зачёт" ? '+' : '-';
+
+		return stsc;
 	}
 
 	void GorDraw() {
