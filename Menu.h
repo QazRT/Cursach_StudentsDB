@@ -83,15 +83,19 @@ public:
 		}
 	}
 
-	int ItemSelect(map<int, text_color> colors = {}, bool fl = false) {
+	int ItemSelect(map<int, text_color> colors = {}, short fl = 0) {
 		char ch = 0;
 		draw(colors);
 		WWC::ShowConsoleCursor(false);
 		while (ch != 13) {
 			ch = _getch();
 
-			if (fl && (ch == 'n' || ch == 'N' || ch == 'т' || ch == 'Т')) {
+			if (fl == 1 && (ch == 'n' || ch == 'N' || ch == 'т' || ch == 'Т')) {
 				selectedItem = 'n';
+				break;
+			}
+			else if (fl == 2 && ch == 83) {
+				selectedItem = 'd';
 				break;
 			}
 
@@ -186,6 +190,9 @@ public:
 		WWC::Cur2xy(0, 7);
 		WWC::ConsColor(15);
 
+		WwDB* wwdb = new WwDB();
+		vector<stud_score> scr = wwdb->get_student_score(stud_id);
+
 		cout.width(75);  cout.fill('_'); cout << "_" << endl;
 		cout.width(4); cout << left << "id";
 		cout.width(52); cout << left << "|_Предмет";
@@ -193,8 +200,6 @@ public:
 		cout.width(10); cout << left << "|_Оценка"; cout << "|" << endl;
 		cout.fill(' ');
 
-		WwDB* wwdb = new WwDB();
-		vector<stud_score> scr = wwdb->get_student_score(stud_id);
 		for (int i = 0; i < scr.size(); ++i) {
 			WWC::ConsColor(FOREGROUND_INTENSITY);
 			cout.width(3);  cout << left << scr[i].id;
@@ -365,7 +370,11 @@ public:
 
 		EditDataClass* edc = new EditDataClass();
 		while (true) {
-			ItemSelect();
+			ItemSelect({}, 2);
+			if (selectedItem == 'd') {
+				system("cls");
+				return { stsc.id, "ddd"};
+			}
 			if (selectedItem == 3)
 				break;
 			if (selectedItem == -1) {

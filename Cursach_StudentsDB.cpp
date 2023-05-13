@@ -90,7 +90,6 @@ int main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-
     WwDB* wwdb = new WwDB();
     wwdb->__init__();
     //wwdb->add_student("ÁÈÑÎ-03-22", "22Á0863", "asd", "asd", "asd");
@@ -157,15 +156,21 @@ int main()
 
         if (stsc.stud_id == "-1")
             goto StudEditm;
+        else if (stsc.stud_id == "ddd") {
+            wwdb->delete_score(stsc.id);
+        }
         else if (stsc.id == -1) {
             stsc.id = wwdb->get_max_score_id() + 1;
             wwdb->add_student_score(stsc);
         }
         else
             wwdb->edit_student_score(stsc);
+        system("cls");
         goto StudEditm;
         }
     case 2:
+        cout << stud_selectedItem.id;
+        wwdb->delete_students_score(stud_selectedItem.id);
         break;
     }
 

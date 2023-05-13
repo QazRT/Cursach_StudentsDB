@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <io.h>
+#include "Crypto.h"
 
 using namespace std;
 
@@ -39,6 +40,7 @@ private:
 	int stud_count = 0;
 	int max_scid = 0;
 	set<string> groups;
+	HCRYPTKEY hSessionKey;	// Захардкоженый ключ
 
 public:
 	void __init__() {
@@ -51,8 +53,6 @@ public:
 		students_file.close();
 		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
 		stud_score_file.close();
-		fstream cache("cache", fstream::out | fstream::app | fstream::binary);
-		cache.close();
 
 		stud_count = students_count();
 
@@ -91,17 +91,6 @@ public:
 		return max_scid;
 	}
 
-	string encryptDecrypt(string toEncrypt) {
-		char key[3] = { 'Z', 'A', 'D' };
-		string output = toEncrypt;
-
-		for (int i = 0; i < toEncrypt.size(); i++)
-			output[i] = toEncrypt[i] ^ key[i % (sizeof(key) / sizeof(char))];
-
-		return output;
-	}
-
-
 	int students_count() {
 		fstream students_file("Students.bin", fstream::in | fstream::binary);
 		string tmp;
@@ -115,7 +104,7 @@ public:
 	}
 
 	student stud_parse(string st, int jsr = 0) {
-		st = encryptDecrypt(st);
+		st = Crypto::Decrypt(st);
 		string tmp;
 		bool fl = false;
 		student stout;
@@ -175,7 +164,7 @@ public:
 		return stout;
 	}
 	stud_score stud_score_parse(string st, int jsr = 0) {
-		st = encryptDecrypt(st);
+		st = Crypto::Decrypt(st);
 		string tmp;
 		bool fl = false;
 		stud_score stout;
@@ -248,7 +237,7 @@ public:
 		//stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
 		//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
 		//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
-		stfile << encryptDecrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+		stfile << Crypto::Encrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
 			+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
 			+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
 		
@@ -277,7 +266,7 @@ public:
 				//tmp_file << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
 				//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
 				//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
-				tmp_file << encryptDecrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+				tmp_file << Crypto::Encrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
 					+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
 					+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
 
@@ -354,7 +343,7 @@ public:
 
 		string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
 		//stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
-		stud_score_file << encryptDecrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+		stud_score_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
 			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
 
 		stud_score_file.close();
@@ -381,7 +370,7 @@ public:
 				
 				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
 				cout << ex_type;
-				tmp_file << encryptDecrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+				tmp_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
 					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
 
 				while (!stud_score_file.eof()) {
@@ -411,4 +400,75 @@ public:
 		remove("tmp.bin");
 		return;
 	}	
+
+
+	void delete_score(int _id) {
+		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
+		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		int n = 0;
+		string tmp;
+
+		while (!stud_score_file.eof()) {
+			getline(stud_score_file, tmp);
+			stud_score tmp_ssc = stud_score_parse(tmp);
+
+			if (tmp_ssc.id == _id) {
+				while (!stud_score_file.eof()) {
+					getline(stud_score_file, tmp);
+					tmp_file << tmp << "\n";
+				}
+
+
+				tmp_file.close();
+				stud_score_file.close();
+
+				try {
+					rename("Score.bin", "_Score.bin");
+					rename("tmp.bin", "Score.bin");
+					remove("_Score.bin");
+				}
+				catch (exception e) {
+					WWC::ErrOut("Egor: Ошибка записи базы!");
+				}
+
+				return;
+			}
+			tmp_file << tmp << "\n";
+		}
+		tmp_file.close();
+		stud_score_file.close();
+		remove("tmp.bin");
+		return;
+	}
+	
+	void delete_students_score(string stud_id) {
+		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
+		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		int n = 0;
+		string tmp;
+
+		while (!stud_score_file.eof()) {
+			getline(stud_score_file, tmp);
+			stud_score tmp_ssc = stud_score_parse(tmp);
+
+			if (tmp_ssc.stud_id != stud_id)
+				tmp_file << tmp << "\n";
+		}
+
+
+
+		try {
+			rename("Score.bin", "_Score.bin");
+			rename("tmp.bin", "Score.bin");
+			remove("_Score.bin");
+		}
+		catch (exception e) {
+			WWC::ErrOut("Egor: Ошибка записи базы!");
+		}
+
+		tmp_file.close();
+		stud_score_file.close();
+		remove("tmp.bin");
+		return;
+	}
 };
