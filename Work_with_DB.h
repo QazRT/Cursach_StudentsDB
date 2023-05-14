@@ -41,7 +41,6 @@ private:
 	int stud_count = 0;
 	int max_scid = 0;
 	set<string> groups;
-	HCRYPTKEY hSessionKey;	// Захардкоженый ключ
 
 public:
 	void __init__() {
@@ -319,6 +318,9 @@ public:
 		}
 		students_file.close();
 
+		sort(students.begin(), students.end(), [](student& left, student right) {
+			return left.id < right.id;
+			});
 
 		return students;
 	}

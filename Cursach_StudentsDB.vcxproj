@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="Crypto.h" />
     <ClInclude Include="EditDataClass.h" />
+    <ClInclude Include="List.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="WorkWithConsole.h" />
     <ClInclude Include="Work_with_DB.h" />

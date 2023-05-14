@@ -98,6 +98,10 @@ public:
 				selectedItem = 'd';
 				break;
 			}
+			else if (fl == 3 && (ch == 'v' || ch == 'V' || ch == 'м' || ch == 'М')) {
+				selectedItem = 'v';
+				break;
+			}
 
 			else if (ch == 75 || ch == 97 || ch == 8) // Left
 			{
@@ -157,13 +161,13 @@ public:
 
 	string group_select() {
 		st = SelectType::string;
-		ItemSelect({}, true);
+		ItemSelect({}, 1);
 		system("cls");
 		WWC::ConsColor(15);
 
 		if (selectedItem == 'n')
 			return "n";
-		if (selectedItem == -1)
+		else if (selectedItem == -1)
 			return "-1";
 
 		return string_items[selectedItem];
@@ -171,7 +175,7 @@ public:
 
 	student stud_select() {
 		st = SelectType::student;
-		ItemSelect();
+		ItemSelect({}, 3);
 		system("cls");
 		WWC::ConsColor(15);
 
@@ -180,6 +184,8 @@ public:
 			student stud = { "", "-1" };
 			return stud;
 		}
+		if (selectedItem == 'v')
+			return { "", "var" };
 
 		return stud_items[selectedItem];
 	}
@@ -418,6 +424,9 @@ public:
 			{
 			case 0:
 				et = editType::onlyDigit;
+				break;
+			case 1:
+				et = editType::all;
 				break;
 			case 2:
 			{

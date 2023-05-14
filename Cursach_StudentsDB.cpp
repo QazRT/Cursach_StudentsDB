@@ -5,8 +5,12 @@
 #include "Menu.h"
 #include "WorkWithConsole.h"
 #include "Work_with_DB.h"
+#include "List.h"
+#include <thread>
+#include <chrono>
 
 using namespace std;
+
 
 string selectedItem;
 
@@ -84,20 +88,77 @@ stud_score EditStudScore(string stud_id) {
     return stsc;
 }
 
+void preparing() {
+    cout << "Preparing |";
+    while (true) {
+        cout << "\b/";
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << "\b--";
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << "\b \b\b\\";
+        this_thread::sleep_for(chrono::milliseconds(500));
+        cout << "\b|";
+        this_thread::sleep_for(chrono::milliseconds(500));
+    }
+}
+
+void variant(WwDB* wwdb) {
+    thread t(preparing);
+    t.detach();
+
+    vector<student> students = wwdb->get_students_by_group(selectedItem);
+    ListClass* otl_stud = new ListClass();
+    ListClass* bad_stud = new ListClass();
+    bool fl = true;
+
+    for (int i = 0; i < students.size(); ++i) {
+        fl = true;
+        vector<stud_score> stsc = wwdb->get_student_score(students[i].id);
+
+        for (int i = 0; i < stsc.size(); ++i) {
+            if (stsc[i].value == '-' || stsc[i].value < 4) {
+                bad_stud->push_back(students[i]);
+                fl = false;
+                break;
+            }
+        }
+
+        if (fl)
+            otl_stud->push_back(students[i]);
+    }
+
+    t.~thread();
+    system("cls");
+
+    student tmp;
+    cout << "Îòëè÷íèêè/õîðîøèñòû:\n";
+    for (int i = 0; i < otl_stud->getCount(); ++i) {
+        tmp = otl_stud->getItem(i);
+        cout << "   " << tmp.id << " " << tmp.surname << " " << tmp.name << " " << tmp.middle_name << " " << tmp.bday << endl;
+    }
+
+    cout << "\nÒðîå÷íèêè:\n";
+    for (int i = 0; i < bad_stud->getCount(); ++i) {
+        tmp = bad_stud->getItem(i);
+        cout << "   " << tmp.id << " " << tmp.surname << " " << tmp.name << " " << tmp.middle_name << " " << tmp.bday << endl;
+    }
+
+    delete otl_stud;
+    delete bad_stud;
+}
+
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
+
     WwDB* wwdb = new WwDB();
     wwdb->__init__();
-    //wwdb->add_student("ÁÈÑÎ-03-22", "22Á0863", "asd", "asd", "asd");
-    //wwdb->add_student("ÁÈÑÎ-02-22", "22Á0864", "dsa", "dda");
 
-
-    //wwdb->get_students_by_group("ÁÈÑÎ-02-22");
-
+    
     Groupsm:
     GroupMenu(wwdb->get_groups());
     if (selectedItem == "n") {
@@ -129,11 +190,18 @@ int main()
         goto Groupsm;
     }
 
+
     Studlistm:
     student stud_selectedItem = StudentsListMenu(wwdb->get_students_by_group(selectedItem));
 
     if (stud_selectedItem.id == "-1")
         goto Groupsm;
+
+    else if (stud_selectedItem.id == "var") {
+        system("cls");
+        variant(wwdb);
+        exit(0);
+    }
 
     StudEditm:
     int excode = StudentEdit(stud_selectedItem);
@@ -142,9 +210,6 @@ int main()
         goto Studlistm;
         break;
     case 0: {
-        //wwdb->add_student_score({4, "22Á0864", "Hu", ExamType::exam, 3});
-        //cout << wwdb->encryptDecrypt("asd");
-        //wwdb->add_student({ "ÁÈÑÎ-02-22", "22Á0864", "asd", "asd", "asd", "20.03.2003", "2021", "ÈÊÁ", "ÊÁ-2"});
         student tmp = EditStudInfo(stud_selectedItem);
         if (tmp.id != "-1") {
             wwdb->edit_student(tmp);
