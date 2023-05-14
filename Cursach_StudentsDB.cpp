@@ -114,6 +114,10 @@ int main()
         }
 
         AddStudent(stud);
+        
+        if (stud.id == "-1")
+            goto Groupsm;
+
         wwdb->add_student(stud);
         delete edc;
         system("cls");
@@ -154,7 +158,7 @@ int main()
     case 1: {
         stud_score stsc = EditStudScore(stud_selectedItem.id);
 
-        if (stsc.stud_id == "-1")
+        if ( stsc.id == -2 || stsc.stud_id == "-1")
             goto StudEditm;
         else if (stsc.stud_id == "ddd") {
             wwdb->delete_score(stsc.id);
@@ -170,7 +174,7 @@ int main()
         }
     case 2:
         cout << stud_selectedItem.id;
-        wwdb->delete_students_score(stud_selectedItem.id);
+        wwdb->delete_student(stud_selectedItem.id);
         break;
     }
 

@@ -99,6 +99,15 @@ public:
 				break;
 			}
 
+			else if (ch == 75 || ch == 97 || ch == 8) // Left
+			{
+				selectedItem = -1;
+				break;
+			}
+
+			if (count_items == 0)
+				continue;
+
 			if (ch == 72 || ch == 119) // Up
 			{
 				WWC::Cur2xy(0, selectedItem + 1);
@@ -117,7 +126,7 @@ public:
 
 				item_print(selectedItem, true);
 			}
-			if (ch == 80 || ch == 115) // Down
+			else if (ch == 80 || ch == 115) // Down
 			{
 				WWC::Cur2xy(0, selectedItem + 1);
 				if ((colors[selectedItem].forc | colors[selectedItem].bgc) == 0)
@@ -135,12 +144,7 @@ public:
 
 				item_print(selectedItem, true);
 			}
-			if (ch == 75 || ch == 97 || ch == 8) // Left
-			{
-				selectedItem = -1;
-				break;
-			}
-			if (ch == 77 || ch == 100) // Right
+			else if (ch == 77 || ch == 100) // Right
 				break;
 
 			Sleep(10);
@@ -193,18 +197,33 @@ public:
 		WwDB* wwdb = new WwDB();
 		vector<stud_score> scr = wwdb->get_student_score(stud_id);
 
-		cout.width(75);  cout.fill('_'); cout << "_" << endl;
+		cout.width(85);  cout.fill('_'); cout << "_" << endl;
 		cout.width(4); cout << left << "id";
+		cout.width(10); cout << left << "|_Семестр";
 		cout.width(52); cout << left << "|_Предмет";
 		cout.width(9); cout << left << "|_Вид";
 		cout.width(10); cout << left << "|_Оценка"; cout << "|" << endl;
 		cout.fill(' ');
 
 		for (int i = 0; i < scr.size(); ++i) {
+			if (i >= 1 && scr[i].sem != scr[i - 1].sem)
+			{
+				cout.fill('-');
+				cout.width(4); cout << "-";
+				cout.width(10); cout << "|-";
+				cout.width(52); cout << "|-";
+				cout.width(9); cout << "|-";
+				cout.width(10); cout << "|-"; cout << "|" << endl;
+				cout.fill(' ');
+			}
+
 			WWC::ConsColor(FOREGROUND_INTENSITY);
 			cout.width(3);  cout << left << scr[i].id;
 			WWC::ConsColor(15);
 			cout << " | ";
+
+			cout.width(8);
+			cout << left << scr[i].sem << "| ";
 
 			cout.width(50);
 			cout << left << scr[i].subj << "| ";
@@ -215,12 +234,16 @@ public:
 			cout.width(8);
 			if (scr[i].value == '+') {
 				WWC::ConsColor(FOREGROUND_GREEN);
-				cout << "Зачёт" << endl;
+				cout << "Зачёт";
+				WWC::ConsColor(15);
+				cout << "|" << endl;
 				continue;
 			}
 			else if (scr[i].value == '-') {
 				WWC::ConsColor(12);
-				cout << "Незачёт" << endl;
+				cout << "Незачёт";
+				WWC::ConsColor(15);
+				cout << "|" << endl;
 				continue;
 			}
 			else if (scr[i].value < 3)
@@ -229,10 +252,12 @@ public:
 				WWC::ConsColor(14);
 			else if (scr[i].value >= 4)
 				WWC::ConsColor(FOREGROUND_GREEN);
-			cout << scr[i].value << endl;
+			cout << scr[i].value;
+
+			WWC::ConsColor(15);
+			cout << "|" << endl;
 		}
 		WWC::ConsColor(15);
-
 
 		WWC::Cur2xy(0, 0);
 		ItemSelect({ {2, {12, 0, FOREGROUND_RED}} });
@@ -273,7 +298,7 @@ public:
 			}
 
 			WWC::Cur2xy(0, selectedItem + 1);
-			cout << string2_items[selectedItem].first; WWC::ConsColor(15);// cout << string2_items[selectedItem].second;
+			cout << string2_items[selectedItem].first; WWC::ConsColor(15); // cout << string2_items[selectedItem].second;
 
 			WWC::ShowConsoleCursor(true);
 
@@ -335,8 +360,8 @@ public:
 		vector<stud_score> scr = wwdb->get_student_score(stud_id);
 
 		for (int i = 0; i < scr.size(); ++i)
-			addMenuItem(scr[i].subj);
-		addMenuItem("Добавить");
+			addMenuItem("Семестр " + to_string(scr[i].sem) + ": " + scr[i].subj);
+		addMenuItem("\b \b\nДобавить");
 		ItemSelect();
 
 		system("cls");
@@ -356,6 +381,7 @@ public:
 	stud_score EditScoreInfoMenu(stud_score stsc) {
 		st = SelectType::EditField;
 
+		addMenuItem(make_pair("Семестр: ", to_string(stsc.sem)));
 		addMenuItem(make_pair("Предмет: ", stsc.subj));
 		addMenuItem(make_pair("Тип оценивания: ", ((stsc.extype == ExamType::exam) ? "Экзамен" : "Зачёт")));
 		string oc;
@@ -375,11 +401,11 @@ public:
 				system("cls");
 				return { stsc.id, "ddd"};
 			}
-			if (selectedItem == 3)
+			if (selectedItem == 4)
 				break;
 			if (selectedItem == -1) {
 				system("cls");
-				return { -1 };
+				return { -2 };
 			}
 
 			WWC::Cur2xy(0, selectedItem + 1);
@@ -390,18 +416,27 @@ public:
 			editType et;
 			switch (selectedItem) 
 			{
-			case 1:
+			case 0:
+				et = editType::onlyDigit;
+				break;
+			case 2:
 			{
 				MenuClass* ExTSel = new MenuClass("");
 				ExTSel->addMenuItem("Экзамен");
 				ExTSel->addMenuItem("Зачёт");
 				string2_items[selectedItem].second = ExTSel->string_items[ExTSel->GorItemSelect(16, selectedItem + 1)];
 				delete ExTSel;
+
+				if (string2_items[2].second == "Зачёт")
+					string2_items[3].second = "Незачёт";
+				else 
+					string2_items[3].second = "0";
+
 				system("cls");
 				continue;
 			}
-			case 2:
-				if (string2_items[1].second == "Зачёт") {
+			case 3:
+				if (string2_items[2].second == "Зачёт") {
 					MenuClass* ZNZSel = new MenuClass("");
 					ZNZSel->addMenuItem("Зачёт");
 					ZNZSel->addMenuItem("Незачёт");
@@ -410,8 +445,7 @@ public:
 					system("cls");
 					continue;
 				}
-				else
-					et = editType::onlyDigit;
+				et = editType::onlyDigit;
 				break;
 			default:
 				et = editType::onlyAlpha;
@@ -425,12 +459,13 @@ public:
 		}
 		delete edc;
 
-		stsc.subj = string2_items[0].second;
-		stsc.extype = (string2_items[1].second == "Экзамен" ? ExamType::exam : ExamType::zach);
+		stsc.sem = stoi(string2_items[0].second);
+		stsc.subj = string2_items[1].second;
+		stsc.extype = (string2_items[2].second == "Экзамен" ? ExamType::exam : ExamType::zach);
 		if (stsc.extype == ExamType::exam)
-			stsc.value = stoi(string2_items[2].second);
+			stsc.value = stoi(string2_items[3].second);
 		else
-			stsc.value = string2_items[2].second == "Зачёт" ? '+' : '-';
+			stsc.value = string2_items[3].second == "Зачёт" ? '+' : '-';
 
 		return stsc;
 	}

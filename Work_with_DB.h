@@ -20,7 +20,7 @@ struct student {
 	string id;
 	string surname;
 	string name;
-	string middle_name = "ND";
+	string middle_name;
 	string bday = "01.01.1999";
 	string admyear = "1999"; // Год поступления
 	string inst;
@@ -33,6 +33,7 @@ struct stud_score {
 	string subj = "";
 	ExamType extype = ExamType::exam;
 	short value = 0;
+	int sem = 1;
 };
 
 class WwDB {
@@ -191,7 +192,10 @@ public:
 						stout.extype = (tmp == "exam") ? ExamType::exam : ExamType::zach;
 						break;
 					case 8:
-						stout.value = stof(tmp);
+						stout.value = stoi(tmp);
+						break;
+					case 10:
+						stout.sem = stoi(tmp);
 						break;
 					default:
 						break;
@@ -335,6 +339,10 @@ public:
 			}
 		}
 
+		sort(scores.begin(), scores.end(), [](stud_score& left, stud_score& right) {
+			return left.sem < right.sem;
+			});	// Сортировка по семестру
+
 		stsc_file.close();
 		return scores;
 	}
@@ -344,7 +352,7 @@ public:
 		string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
 		//stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
 		stud_score_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
-			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
+			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}") << "\n";
 
 		stud_score_file.close();
 
@@ -371,7 +379,7 @@ public:
 				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
 				cout << ex_type;
 				tmp_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
-					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"}") << "\n";
+					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}") << "\n";
 
 				while (!stud_score_file.eof()) {
 					getline(stud_score_file, tmp);
@@ -449,13 +457,16 @@ public:
 
 		while (!stud_score_file.eof()) {
 			getline(stud_score_file, tmp);
-			stud_score tmp_ssc = stud_score_parse(tmp);
+			stud_score tmp_ssc = stud_score_parse(tmp, 2);
 
-			if (tmp_ssc.stud_id != stud_id)
-				tmp_file << tmp << "\n";
+			if (tmp_ssc.stud_id == stud_id)
+				continue;
+			tmp_file << tmp << "\n";
 		}
 
 
+		tmp_file.close();
+		stud_score_file.close();
 
 		try {
 			rename("Score.bin", "_Score.bin");
@@ -466,8 +477,40 @@ public:
 			WWC::ErrOut("Egor: Ошибка записи базы!");
 		}
 
+		remove("tmp.bin");
+		return;
+	}
+
+	void delete_student(string stud_id) {
+		delete_students_score(stud_id);
+
+		fstream stud_file("Students.bin", fstream::in | fstream::binary);
+		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		int n = 0;
+		string tmp;
+
+		while (!stud_file.eof()) {
+			getline(stud_file, tmp);
+			student tmp_st = stud_parse(tmp, 4);
+
+			if (tmp_st.id == stud_id)
+				continue;
+			tmp_file << tmp << "\n";
+		}
+
+
 		tmp_file.close();
-		stud_score_file.close();
+		stud_file.close();
+
+		try {
+			rename("Students.bin", "_Students.bin");
+			rename("tmp.bin", "Students.bin");
+			remove("_Students.bin");
+		}
+		catch (exception e) {
+			WWC::ErrOut("Egor: Ошибка записи базы!");
+		}
+
 		remove("tmp.bin");
 		return;
 	}
