@@ -69,8 +69,8 @@ public:
 
     student getItem(int index) {
         student _data = { "Error::list_error" };
-        if (index >= 0 and index < countItem and countItem>0) {
-            struct list* current = myHead;
+        if (index >= 0 && index < countItem && countItem > 0) {
+            list* current = myHead;
             for (int i = 0; i < index; i++) {
                 current = current->next;
             }

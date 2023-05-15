@@ -192,6 +192,7 @@ public:
 
 	int stud_edit(string stud_id) {
 		st = SelectType::string;
+		cout << "Preparing...";
 
 		addMenuItem("Изменить данные о студенте");
 		addMenuItem("Изменить данные зачетной книжки студента");
@@ -359,6 +360,7 @@ public:
 
 	stud_score EditStudScoreMenu(string stud_id) {
 		st = SelectType::string;
+		cout << "Preparing...";
 
 		WWC::ConsColor(15);
 
@@ -368,6 +370,7 @@ public:
 		for (int i = 0; i < scr.size(); ++i)
 			addMenuItem("Семестр " + to_string(scr[i].sem) + ": " + scr[i].subj);
 		addMenuItem("\b \b\nДобавить");
+		system("cls");
 		ItemSelect();
 
 		system("cls");

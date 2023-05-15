@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Crypto">
+    <Position X="4.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Crypto.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EditDataClass">
+    <Position X="4.25" Y="3" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEEQAAAAAAACEBAAAAAAAAAAAAAAAAABQAAQACAAAIA=</HashCode>
+      <FileName>EditDataClass.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ListClass">
+    <Position X="15" Y="0.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAQAAEAAAAAAGAIABAAAAAAAAACAAAAAAEAAA=</HashCode>
+      <FileName>List.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MenuClass">
+    <Position X="6.5" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>QEAAAhQQAABAAMBgAAIAgAAAAAAAECgAgRAAgAAYgAA=</HashCode>
+      <FileName>Menu.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WWC">
+    <Position X="15" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAgIAAEAAAAAA=</HashCode>
+      <FileName>WorkWithConsole.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WwDB">
+    <Position X="11" Y="0.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QAAQCAACAQAAIgAAAAQgIAEAAACIAgAABAAAAQQAAgI=</HashCode>
+      <FileName>Work_with_DB.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="list">
+    <Position X="15" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAIAAAA=</HashCode>
+      <FileName>List.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="text_color">
+    <Position X="9.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAABAAAAAAAAAAAABAA=</HashCode>
+      <FileName>Menu.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="student">
+    <Position X="9.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SAAAAAQAAAAAAAAAAAQEAAAAAAAEAAIACAAAAAAAIgA=</HashCode>
+      <FileName>Work_with_DB.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="stud_score">
+    <Position X="9.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAAAAAAAACAAAAAABAAAEhA=</HashCode>
+      <FileName>Work_with_DB.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="editType">
+    <Position X="13.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAgAAAAQAAAAAAAAAAAAAAAAAAAAAAAAQCAABA=</HashCode>
+      <FileName>EditDataClass.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SelectType">
+    <Position X="13.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAABAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Menu.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Sex">
+    <Position X="13.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>Work_with_DB.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExamType">
+    <Position X="13.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAA=</HashCode>
+      <FileName>Work_with_DB.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

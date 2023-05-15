@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "windows.h"
 #include <iostream>
 #include <fstream>
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-enum class Sex : char { man, woman, CombatHelicopter };	// А давай
+enum class Sex : char { man, woman, CombatHelicopter };	// Рђ РґР°РІР°Р№
 enum class ExamType : char { exam, zach };
 
 struct student {
@@ -22,7 +22,7 @@ struct student {
 	string name;
 	string middle_name;
 	string bday = "01.01.1999";
-	string admyear = "1999"; // Год поступления
+	string admyear = "1999"; // Р“РѕРґ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ
 	string inst;
 	string kaf;
 	Sex sex = Sex::CombatHelicopter;
@@ -44,6 +44,9 @@ private:
 
 public:
 	void __init__() {
+		WWC::ShowConsoleCursor(false);
+		cout << "Loading and preparing...";
+
 		if (_access("_Score.bin", 0) != -1) 
 			rename("_Score.bin", "Score.bin");
 		if (_access("_Students.bin", 0) != -1) 
@@ -67,6 +70,7 @@ public:
 		students_file.close();
 
 		init_max_score_id();
+		system("cls");
 	}
 
 	vector<string> get_groups() {
@@ -97,7 +101,8 @@ public:
 		int n = 0;
 		while (!students_file.eof()) {
 			getline(students_file, tmp);
-			n++;
+			if (tmp != "\n")
+				n++;
 		}
 		students_file.close();
 		return n-1;
@@ -225,7 +230,7 @@ public:
 		while (!stfile.eof()) {
 			getline(stfile, tmp);
 			if (stud_parse(tmp, 4).id == st.id) {
-				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
+				WWC::ErrOut("Egor: РЎС‚СѓРґРµРЅС‚ СЃ С‚Р°РєРёРј С€РёС„СЂРѕРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 				return false;
 			}
 		}
@@ -262,7 +267,7 @@ public:
 			student tmp_st = stud_parse(tmp);
 
 			if (tmp_st.id == st.id) {
-				// замена данных
+				// Р·Р°РјРµРЅР° РґР°РЅРЅС‹С…
 				tmp_st = st;
 
 				string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
@@ -290,7 +295,7 @@ public:
 					remove("_Students.bin");
 				}
 				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
+					WWC::ErrOut("Egor: РћС€РёР±РєР° Р·Р°РїРёСЃРё Р±Р°Р·С‹!");
 				}
 
 				return;
@@ -313,10 +318,17 @@ public:
 			getline(students_file, tmp);
 			//cout << "ch = " << ch << endl;
 			student st = stud_parse(tmp);
-			if (st.group == _group) 
+			if (st.group == _group)
 				students.push_back(st);
+				
 		}
 		students_file.close();
+
+		if (students.size() == 0) {
+			groups.erase(_group);
+			return students;
+		}
+			
 
 		sort(students.begin(), students.end(), [](student& left, student right) {
 			return left.id < right.id;
@@ -343,7 +355,7 @@ public:
 
 		sort(scores.begin(), scores.end(), [](stud_score& left, stud_score& right) {
 			return left.sem < right.sem;
-			});	// Сортировка по семестру
+			});	// РЎРѕСЂС‚РёСЂРѕРІРєР° РїРѕ СЃРµРјРµСЃС‚СЂСѓ
 
 		stsc_file.close();
 		return scores;
@@ -373,7 +385,7 @@ public:
 			stud_score tmp_ssc = stud_score_parse(tmp);
 
 			if (tmp_ssc.id == stud_sc.id) {
-				// замена данных
+				// Р·Р°РјРµРЅР° РґР°РЅРЅС‹С…
 				tmp_ssc.extype = stud_sc.extype;
 				tmp_ssc.subj = stud_sc.subj;
 				tmp_ssc.value = stud_sc.value;
@@ -398,7 +410,7 @@ public:
 					remove("_Score.bin");
 				}
 				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
+					WWC::ErrOut("Egor: РћС€РёР±РєР° Р·Р°РїРёСЃРё Р±Р°Р·С‹!");
 				}
 
 				return;
@@ -438,7 +450,7 @@ public:
 					remove("_Score.bin");
 				}
 				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
+					WWC::ErrOut("Egor: РћС€РёР±РєР° Р·Р°РїРёСЃРё Р±Р°Р·С‹!");
 				}
 
 				return;
@@ -476,14 +488,16 @@ public:
 			remove("_Score.bin");
 		}
 		catch (exception e) {
-			WWC::ErrOut("Egor: Ошибка записи базы!");
+			WWC::ErrOut("Egor: РћС€РёР±РєР° Р·Р°РїРёСЃРё Р±Р°Р·С‹!");
 		}
 
 		remove("tmp.bin");
 		return;
 	}
 
-	void delete_student(string stud_id) {
+	bool delete_student(string stud_id) {
+		cout << "Deleting student, please wait...";
+
 		delete_students_score(stud_id);
 
 		fstream stud_file("Students.bin", fstream::in | fstream::binary);
@@ -510,10 +524,15 @@ public:
 			remove("_Students.bin");
 		}
 		catch (exception e) {
-			WWC::ErrOut("Egor: Ошибка записи базы!");
+			WWC::ErrOut("Egor: РћС€РёР±РєР° Р·Р°РїРёСЃРё Р±Р°Р·С‹!");
+			return false;
 		}
 
 		remove("tmp.bin");
-		return;
+		system("cls");
+
+		
+
+		return true;
 	}
 };

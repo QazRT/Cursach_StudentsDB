@@ -37,7 +37,6 @@ student StudentsListMenu(vector<student> studs) {
 }
 
 void AddStudent(student& stud) {
-    system("cls");
     MenuClass* stud_add_menu = new MenuClass("Изменение студента с шифром: " + stud.id);
     stud = stud_add_menu->EditStudInfoMenu(stud);
 
@@ -89,16 +88,17 @@ stud_score EditStudScore(string stud_id) {
 }
 
 void preparing() {
+    WWC::ShowConsoleCursor(false);
     cout << "Preparing |";
     while (true) {
         cout << "\b/";
-        this_thread::sleep_for(chrono::milliseconds(500));
+        this_thread::sleep_for(chrono::milliseconds(250));
         cout << "\b--";
-        this_thread::sleep_for(chrono::milliseconds(500));
+        this_thread::sleep_for(chrono::milliseconds(250));
         cout << "\b \b\b\\";
-        this_thread::sleep_for(chrono::milliseconds(500));
+        this_thread::sleep_for(chrono::milliseconds(250));
         cout << "\b|";
-        this_thread::sleep_for(chrono::milliseconds(500));
+        this_thread::sleep_for(chrono::milliseconds(250));
     }
 }
 
@@ -115,19 +115,20 @@ void variant(WwDB* wwdb) {
         fl = true;
         vector<stud_score> stsc = wwdb->get_student_score(students[i].id);
 
-        for (int i = 0; i < stsc.size(); ++i) {
-            if (stsc[i].value == '-' || stsc[i].value < 4) {
-                bad_stud->push_back(students[i]);
+        for (int j = 0; j < stsc.size(); ++j) {
+            if (stsc[j].value == '-' || stsc[j].value < 4) {
+                bad_stud->addItem(students[i]);
                 fl = false;
                 break;
             }
         }
 
         if (fl)
-            otl_stud->push_back(students[i]);
+            otl_stud->addItem(students[i]);
     }
 
     t.~thread();
+    Sleep(10);
     system("cls");
 
     student tmp;
@@ -174,7 +175,19 @@ int main()
                 break;
         }
 
-        AddStudent(stud);
+        system("cls");
+        while (true) {
+            AddStudent(stud);
+
+            if (stud.surname == "" || stud.name == "") {
+                system("cls");
+                WWC::Cur2xy(0, 13);
+                WWC::ErrOut("Группа, фамилия и имя обязательны!");
+                WWC::Cur2xy(0, 0);
+                continue;
+            }
+            break;
+        }
         
         if (stud.id == "-1")
             goto Groupsm;
@@ -238,9 +251,8 @@ int main()
         goto StudEditm;
         }
     case 2:
-        cout << stud_selectedItem.id;
         wwdb->delete_student(stud_selectedItem.id);
-        break;
+        goto Studlistm;
     }
 
     delete wwdb;  
