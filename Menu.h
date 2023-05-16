@@ -27,7 +27,6 @@ private:
 	vector<pair<string, string>> string2_items;
 	vector<student> stud_items;
 	string upTitle; //Заголовок меню (сверху)
-	string downTitle; //Заголовок  меню (снизу)
 	int selectedItem = 0;
 	SelectType st;
 public:

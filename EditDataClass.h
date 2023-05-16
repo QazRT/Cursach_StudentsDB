@@ -69,6 +69,7 @@ public:
 
 	string getData(enum class editType et) {
 		char ch = 0;
+		WWC::ShowConsoleCursor(true);
 		cout << data;
 		while (ch != 13) {
 			ch = _getch();
@@ -147,6 +148,7 @@ public:
 				}
 			}
 		}
+		WWC::ShowConsoleCursor(false);
 		return data;
 	}
 	int getData(enum class editType et, int min, int max) {

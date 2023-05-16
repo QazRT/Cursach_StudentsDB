@@ -4,8 +4,6 @@
 #include <windows.h>
 
 class Crypto {
-private:
-
 public:
 	static string Encrypt(string to_enc) {
 		if (to_enc == "")

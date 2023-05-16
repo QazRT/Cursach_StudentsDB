@@ -103,6 +103,12 @@ void preparing() {
 }
 
 void variant(WwDB* wwdb) {
+    EditDataClass* edc = new EditDataClass();
+    cout << "Введите интервал года рождения (1): "; int y1 = edc->getData(editType::onlyDigit, 0, 9999);
+    edc->setData("");
+    cout << "\nВведите интервал года рождения (2): "; int y2 = edc->getData(editType::onlyDigit, 0, 9999);
+    system("cls");
+
     thread t(preparing);
     t.detach();
 
@@ -111,8 +117,13 @@ void variant(WwDB* wwdb) {
     ListClass* bad_stud = new ListClass();
     bool fl = true;
 
+
     for (int i = 0; i < students.size(); ++i) {
         fl = true;
+        int ysam = stoi(students[i].bday.substr(6, 10));
+        if (!(y1 <= ysam && ysam <= y2))
+            continue;
+
         vector<stud_score> stsc = wwdb->get_student_score(students[i].id);
 
         for (int j = 0; j < stsc.size(); ++j) {
@@ -179,10 +190,18 @@ int main()
         while (true) {
             AddStudent(stud);
 
-            if (stud.surname == "" || stud.name == "") {
+
+            if (stud.group == "" || stud.surname == "" || stud.name == "") {
                 system("cls");
                 WWC::Cur2xy(0, 13);
                 WWC::ErrOut("Группа, фамилия и имя обязательны!");
+                WWC::Cur2xy(0, 0);
+                continue;
+            }
+            if (stud.bday.length() != 10) {
+                system("cls");
+                WWC::Cur2xy(0, 13);
+                WWC::ErrOut("Введена некорректная дата!");
                 WWC::Cur2xy(0, 0);
                 continue;
             }
