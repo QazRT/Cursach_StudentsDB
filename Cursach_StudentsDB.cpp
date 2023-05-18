@@ -115,7 +115,7 @@ void variant(WwDB* wwdb) {
     vector<student> students = wwdb->get_students_by_group(selectedItem);
     ListClass* otl_stud = new ListClass();
     ListClass* bad_stud = new ListClass();
-    bool fl = true;
+    bool fl;
 
 
     for (int i = 0; i < students.size(); ++i) {
@@ -191,6 +191,8 @@ int main()
             AddStudent(stud);
 
 
+            if (stud.id == "-1")
+                goto Groupsm;
             if (stud.group == "" || stud.surname == "" || stud.name == "") {
                 system("cls");
                 WWC::Cur2xy(0, 13);
@@ -208,8 +210,6 @@ int main()
             break;
         }
         
-        if (stud.id == "-1")
-            goto Groupsm;
 
         wwdb->add_student(stud);
         delete edc;

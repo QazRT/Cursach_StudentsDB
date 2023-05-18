@@ -222,9 +222,6 @@ public:
 
 		return stout;
 	}
-	string date_parse(string _date) {
-		return {_date.substr(0, 1)};
-	}
 
 	bool check_student(student st) {
 		fstream stfile("Students.bin", fstream::in | fstream::binary);

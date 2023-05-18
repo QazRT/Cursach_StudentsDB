@@ -10,7 +10,7 @@ public:
 			return "";
 		
 		string pass = "Zargarov";
-		string command = "echo " + to_enc + " | openssl\\bin\\openssl.exe aes-128-ecb -pbkdf2 -a -A -pass pass:" + pass + " > crptmp";
+		string command = "echo " + to_enc + " | openssl\\bin\\openssl.exe aes-128-ecb -pbkdf2 -a -A -pass pass:" + pass + " 1>crptmp 2>NUL";
 
 		system(command.c_str());
 
@@ -29,7 +29,7 @@ public:
 
 		string pass = "Zargarov";
 
-		string command = "echo " + to_dec + " | openssl\\bin\\openssl.exe aes-128-ecb -pbkdf2 -a -d -pass pass:" + pass + " > crptmp";
+		string command = "echo " + to_dec + " | openssl\\bin\\openssl.exe aes-128-ecb -pbkdf2 -a -d -pass pass:" + pass + " 1>crptmp 2>NUL";
 		system(command.c_str());
 		
 		
