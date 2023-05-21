@@ -8,11 +8,11 @@
 #include <algorithm>
 #include <stdio.h>
 #include <io.h>
-#include "Crypto.h"
+
 
 using namespace std;
 
-enum class Sex : char { man, woman, CombatHelicopter };	// А давай
+enum class Sex : char { man, woman };
 enum class ExamType : char { exam, zach };
 
 struct student {
@@ -22,10 +22,10 @@ struct student {
 	string name;
 	string middle_name;
 	string bday = "01.01.1999";
-	string admyear = "1999"; // Год поступления
+	int admyear = 1999; // Год поступления
 	string inst;
 	string kaf;
-	Sex sex = Sex::CombatHelicopter;
+	Sex sex = Sex::man;
 };
 struct stud_score {
 	int id;
@@ -44,23 +44,22 @@ private:
 
 public:
 	void __init__() {
-		WWC::ShowConsoleCursor(false);
 		cout << "Loading and preparing...";
 
-		if (_access("_Score.bin", 0) != -1) 
-			rename("_Score.bin", "Score.bin");
-		if (_access("_Students.bin", 0) != -1) 
-			rename("_Students.bin", "Students.bin");
+		if (_access("_Score.txt", 0) != -1) 
+			rename("_Score.txt", "Score.txt");
+		if (_access("_Students.txt", 0) != -1) 
+			rename("_Students.txt", "Students.txt");
 
-		fstream students_file("Students.bin", fstream::out | fstream::app | fstream::binary);
+		fstream students_file("Students.txt", fstream::out | fstream::app);
 		students_file.close();
-		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
+		fstream stud_score_file("Score.txt", fstream::out | fstream::app);
 		stud_score_file.close();
 
 		stud_count = students_count();
 
 
-		students_file.open("Students.bin", fstream::in | fstream::binary);
+		students_file.open("Students.txt", fstream::in);
 		string tmp;
 		while (!students_file.eof()) {
 			getline(students_file, tmp);
@@ -79,7 +78,7 @@ public:
 	}
 
 	void init_max_score_id() {
-		fstream stsc_file("Score.bin", fstream::in | fstream::binary);
+		fstream stsc_file("Score.txt", fstream::in);
 		string tmp;
 		int _maxid = 0;
 		while (!stsc_file.eof()) {
@@ -96,7 +95,7 @@ public:
 	}
 
 	int students_count() {
-		fstream students_file("Students.bin", fstream::in | fstream::binary);
+		fstream students_file("Students.txt", fstream::in);
 		string tmp;
 		int n = 0;
 		while (!students_file.eof()) {
@@ -109,7 +108,6 @@ public:
 	}
 
 	student stud_parse(string st, int jsr = 0) {
-		st = Crypto::Decrypt(st);
 		string tmp;
 		bool fl = false;
 		student stout;
@@ -141,7 +139,7 @@ public:
 						stout.bday = tmp;
 						break;
 					case 14:
-						stout.admyear = tmp;
+						stout.admyear = stoi(tmp);
 						break;
 					case 16:
 						stout.inst = tmp;
@@ -150,7 +148,7 @@ public:
 						stout.kaf = tmp;
 						break;
 					case 20:
-						stout.sex = (tmp == "man") ? Sex::man : (tmp == "woman" ? Sex::woman : Sex::CombatHelicopter);
+						stout.sex = (tmp == "man") ? Sex::man : Sex::woman;
 						break;
 					default:
 						break;
@@ -169,7 +167,6 @@ public:
 		return stout;
 	}
 	stud_score stud_score_parse(string st, int jsr = 0) {
-		st = Crypto::Decrypt(st);
 		string tmp;
 		bool fl = false;
 		stud_score stout;
@@ -177,7 +174,6 @@ public:
 			if (st[i] == '"') {
 				j++;
 				fl = j % 2;
-				//cout << 195 << " " << j << " ";
 				if (fl) {
 					if (tmp != "" && j == 1)
 						stout.id = stoi(tmp);
@@ -224,13 +220,13 @@ public:
 	}
 
 	bool check_student(student st) {
-		fstream stfile("Students.bin", fstream::in | fstream::binary);
+		fstream stfile("Students.txt", fstream::in);
 
 		string tmp;
 		while (!stfile.eof()) {
 			getline(stfile, tmp);
 			if (stud_parse(tmp, 4).id == st.id) {
-				WWC::ErrOut("Egor: Студент с таким шифром уже существует!");
+				WWC::ErrOut("Error: Студент с таким шифром уже существует!");
 				return false;
 			}
 		}
@@ -240,14 +236,12 @@ public:
 	}
 
 	void add_student(student st) {
-		fstream stfile("Students.bin", fstream::out | fstream::app | fstream::binary);
-		string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
-		//stfile << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
-		//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
-		//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
-		stfile << Crypto::Encrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
-			+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
-			+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
+		fstream stfile("Students.txt", fstream::out | fstream::app);
+		string sex = (st.sex == Sex::man) ? "man" : "woman";
+
+		stfile << "{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+			+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + to_string(st.admyear) + "\"\"" + st.inst
+			+ "\"\"" + st.kaf + "\"\"" + sex + "\"}" << "\n";
 		
 		stfile.close();
 
@@ -257,8 +251,8 @@ public:
 	}
 
 	void edit_student(student st) {
-		fstream stfile("Students.bin", fstream::in | fstream::binary);
-		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		fstream stfile("Students.txt", fstream::in);
+		fstream tmp_file("tmp.txt", fstream::out);
 		int n = 0;
 		string tmp;
 
@@ -270,13 +264,10 @@ public:
 				// замена данных
 				tmp_st = st;
 
-				string sex = (st.sex == Sex::man) ? "man" : (st.sex == Sex::woman ? "woman" : "CombatHelicopter");
-				//tmp_file << "{\"" << encryptDecrypt(st.group) << "\"\"" << encryptDecrypt(st.id) << "\"\"" << encryptDecrypt(st.surname) << "\"\"" << encryptDecrypt(st.name)
-				//	<< "\"\"" << encryptDecrypt(st.middle_name) << "\"\"" << encryptDecrypt(st.bday) << "\"\"" << encryptDecrypt(st.admyear) << "\"\"" << encryptDecrypt(st.inst)
-				//	<< "\"\"" << encryptDecrypt(st.kaf) << "\"\"" << encryptDecrypt(sex) << "\"}\n";
-				tmp_file << Crypto::Encrypt("{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
-					+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + st.admyear + "\"\"" + st.inst
-					+ "\"\"" + st.kaf + "\"\"" + sex + "\"}") << "\n";
+				string sex = (st.sex == Sex::man) ? "man" : "woman";
+				tmp_file << "{\"" + st.group + "\"\"" + st.id + "\"\"" + st.surname + "\"\"" + st.name
+					+ "\"\"" + st.middle_name + "\"\"" + st.bday + "\"\"" + to_string(st.admyear) + "\"\"" + st.inst
+					+ "\"\"" + st.kaf + "\"\"" + sex + "\"}" << "\n";
 
 				groups.insert(st.group);
 
@@ -289,14 +280,9 @@ public:
 				tmp_file.close();
 				stfile.close();
 
-				try {
-					rename("Students.bin", "_Students.bin");
-					rename("tmp.bin", "Students.bin");
-					remove("_Students.bin");
-				}
-				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
-				}
+				rename("Students.txt", "_Students.txt");
+				rename("tmp.txt", "Students.txt");
+				remove("_Students.txt");
 
 				return;
 			}
@@ -304,7 +290,7 @@ public:
 		}
 		tmp_file.close();
 		stfile.close();
-		remove("tmp.bin");
+		remove("tmp.txt");
 		return;
 	}
 
@@ -312,11 +298,10 @@ public:
 	vector<student> get_students_by_group(string _group) {
 		vector<student> students;
 
-		fstream students_file("Students.bin", fstream::in | fstream::binary);
+		fstream students_file("Students.txt", fstream::in);
 		string tmp;
 		while (!students_file.eof()) {
 			getline(students_file, tmp);
-			//cout << "ch = " << ch << endl;
 			student st = stud_parse(tmp);
 			if (st.group == _group)
 				students.push_back(st);
@@ -339,7 +324,7 @@ public:
 
 
 	vector<stud_score> get_student_score(string _stud_id) {
-		fstream stsc_file("Score.bin", fstream::in | fstream::binary);
+		fstream stsc_file("Score.txt", fstream::in);
 		string tmp;
 		vector<stud_score> scores;
 
@@ -347,7 +332,6 @@ public:
 			getline(stsc_file, tmp);
 			stud_score tmp_ssc = stud_score_parse(tmp);
 
-			//cout << tmp_ssc.stud_id << " " << _stud_id << "\n";
 			if (tmp_ssc.stud_id == _stud_id) {
 				scores.push_back(tmp_ssc);
 			}
@@ -361,12 +345,11 @@ public:
 		return scores;
 	}
 	int add_student_score(stud_score stud_sc) {
-		fstream stud_score_file("Score.bin", fstream::out | fstream::app | fstream::binary);
+		fstream stud_score_file("Score.txt", fstream::out | fstream::app);
 
 		string ex_type = (stud_sc.extype == ExamType::exam) ? "exam" : "zach";
-		//stud_score_file << stud_sc.id << " " << stud_sc.stud_id << " " << stud_sc.subj << " " << ex_type << " " << stud_sc.value << " endl ";
-		stud_score_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
-			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}") << "\n";
+		stud_score_file << "{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+			+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}" << "\n";
 
 		stud_score_file.close();
 
@@ -375,11 +358,11 @@ public:
 		return stud_sc.id;
 	}
 	void edit_student_score(stud_score stud_sc) {
-		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
-		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		fstream stud_score_file("Score.txt", fstream::in);
+		fstream tmp_file("tmp.txt", fstream::out);
 		int n = 0;
 		string tmp;
-		//int id;
+
 		while (!stud_score_file.eof()) {
 			getline(stud_score_file, tmp);
 			stud_score tmp_ssc = stud_score_parse(tmp);
@@ -392,8 +375,8 @@ public:
 				
 				string ex_type = (tmp_ssc.extype == ExamType::exam) ? "exam" : "zach";
 				cout << ex_type;
-				tmp_file << Crypto::Encrypt("{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
-					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}") << "\n";
+				tmp_file << "{" + to_string(stud_sc.id) + "\"" + stud_sc.stud_id + "\"\"" + stud_sc.subj
+					+ "\"\"" + ex_type + "\"\"" + to_string(stud_sc.value) + "\"\"" + to_string(stud_sc.sem) + "\"}" << "\n";
 
 				while (!stud_score_file.eof()) {
 					getline(stud_score_file, tmp);
@@ -404,14 +387,9 @@ public:
 				tmp_file.close();
 				stud_score_file.close();
 
-				try {
-					rename("Score.bin", "_Score.bin");
-					rename("tmp.bin", "Score.bin");
-					remove("_Score.bin");
-				}
-				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
-				}
+				rename("Score.txt", "_Score.txt");
+				rename("tmp.txt", "Score.txt");
+				remove("_Score.txt");
 
 				return;
 			}
@@ -419,14 +397,14 @@ public:
 		}
 		tmp_file.close();
 		stud_score_file.close();
-		remove("tmp.bin");
+		remove("tmp.txt");
 		return;
 	}	
 
 
 	void delete_score(int _id) {
-		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
-		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		fstream stud_score_file("Score.txt", fstream::in);
+		fstream tmp_file("tmp.txt", fstream::out);
 		int n = 0;
 		string tmp;
 
@@ -445,12 +423,12 @@ public:
 				stud_score_file.close();
 
 				try {
-					rename("Score.bin", "_Score.bin");
-					rename("tmp.bin", "Score.bin");
-					remove("_Score.bin");
+					rename("Score.txt", "_Score.txt");
+					rename("tmp.txt", "Score.txt");
+					remove("_Score.txt");
 				}
 				catch (exception e) {
-					WWC::ErrOut("Egor: Ошибка записи базы!");
+					WWC::ErrOut("Error: Ошибка записи базы!");
 				}
 
 				return;
@@ -459,13 +437,13 @@ public:
 		}
 		tmp_file.close();
 		stud_score_file.close();
-		remove("tmp.bin");
+		remove("tmp.txt");
 		return;
 	}
 	
 	void delete_students_score(string stud_id) {
-		fstream stud_score_file("Score.bin", fstream::in | fstream::binary);
-		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		fstream stud_score_file("Score.txt", fstream::in);
+		fstream tmp_file("tmp.txt", fstream::out);
 		int n = 0;
 		string tmp;
 
@@ -482,26 +460,19 @@ public:
 		tmp_file.close();
 		stud_score_file.close();
 
-		try {
-			rename("Score.bin", "_Score.bin");
-			rename("tmp.bin", "Score.bin");
-			remove("_Score.bin");
-		}
-		catch (exception e) {
-			WWC::ErrOut("Egor: Ошибка записи базы!");
-		}
+		rename("Score.txt", "_Score.txt");
+		rename("tmp.txt", "Score.txt");
+		remove("_Score.txt");
 
-		remove("tmp.bin");
+		remove("tmp.txt");
 		return;
 	}
 
 	bool delete_student(string stud_id) {
-		cout << "Deleting student, please wait...";
-
 		delete_students_score(stud_id);
 
-		fstream stud_file("Students.bin", fstream::in | fstream::binary);
-		fstream tmp_file("tmp.bin", fstream::out | fstream::binary);
+		fstream stud_file("Students.txt", fstream::in);
+		fstream tmp_file("tmp.txt", fstream::out);
 		int n = 0;
 		string tmp;
 
@@ -518,20 +489,12 @@ public:
 		tmp_file.close();
 		stud_file.close();
 
-		try {
-			rename("Students.bin", "_Students.bin");
-			rename("tmp.bin", "Students.bin");
-			remove("_Students.bin");
-		}
-		catch (exception e) {
-			WWC::ErrOut("Egor: Ошибка записи базы!");
-			return false;
-		}
+		rename("Students.txt", "_Students.txt");
+		rename("tmp.txt", "Students.txt");
+		remove("_Students.txt");
 
 		remove("tmp.bin");
 		system("cls");
-
-		
 
 		return true;
 	}

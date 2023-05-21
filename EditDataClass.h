@@ -69,14 +69,13 @@ public:
 
 	string getData(enum class editType et) {
 		char ch = 0;
-		WWC::ShowConsoleCursor(true);
+
 		cout << data;
 		while (ch != 13) {
 			ch = _getch();
 			if (ch == 8) {
 				if (data.length() > 0) {
 					data.pop_back();
-					//system("cls");
 					cout << "\b \b";
 				}
 				continue;
@@ -148,7 +147,7 @@ public:
 				}
 			}
 		}
-		WWC::ShowConsoleCursor(false);
+
 		return data;
 	}
 	int getData(enum class editType et, int min, int max) {
@@ -161,13 +160,13 @@ public:
 
 			if (data.length() < 1) {
 				WWC::ConsColor(FOREGROUND_RED);
-				cout << endl << "Egor: Введите число\n";
+				cout << endl << "Error: Введите число\n";
 				WWC::ConsColor(15);
 				goto DiapError;
 			}			
 			if (!(num >= min and num <= max)) {
 				WWC::ConsColor(FOREGROUND_RED);
-				cout << endl << "Egor: Введенное число (" << num << ") Не входит в отрезок [" << min << "; " << max << "]\n";
+				cout << endl << "Error: Введенное число (" << num << ") Не входит в отрезок [" << min << "; " << max << "]\n";
 				WWC::ConsColor(15);
 				goto DiapError;
 			}
@@ -180,13 +179,13 @@ public:
 			getData(et);
 			if (data.length() < 1) {
 				WWC::ConsColor(FOREGROUND_RED);
-				cout << endl << "Egor: Введите строку\n";
+				cout << endl << "Error: Введите строку\n";
 				WWC::ConsColor(15);
 				goto LenError;
 			}
 			if (data.length() > len) {
 				WWC::ConsColor(FOREGROUND_RED);
-				cout << endl << "Egor: Длина строки больше допустимой (" << data.length() << ") Разрешено: " << len << endl;
+				cout << endl << "Error: Длина строки больше допустимой (" << data.length() << ") Разрешено: " << len << endl;
 				WWC::ConsColor(15);
 				goto LenError;
 			}

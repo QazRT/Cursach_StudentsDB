@@ -6,8 +6,6 @@
 #include "WorkWithConsole.h"
 #include "Work_with_DB.h"
 #include "List.h"
-#include <thread>
-#include <chrono>
 
 using namespace std;
 
@@ -18,6 +16,8 @@ void GroupMenu(vector<string> groups) {
    MenuClass* mainMenu = new MenuClass("Главное меню");
     for (int i = 0; i < groups.size(); ++i)
         mainMenu->addMenuItem(groups[i]);
+    
+    mainMenu->addMenuItem("Добавить студента");
 
     selectedItem = mainMenu->group_select();
     delete mainMenu;
@@ -26,9 +26,10 @@ void GroupMenu(vector<string> groups) {
 student StudentsListMenu(vector<student> studs) {
     MenuClass* stud_list = new MenuClass("Список студентов группы "+selectedItem);
 
-    //cout << studs[0].id;
+    stud_list->addMenuItem({ "", "", "Вернуться"});
     for (int i = 0; i < studs.size(); ++i)
         stud_list->addMenuItem(studs[i]);
+    stud_list->addMenuItem({ "", "", "Выполнить вариант"});
 
     student stud_selectedItem = stud_list->stud_select();
     delete stud_list;
@@ -59,20 +60,6 @@ student EditStudInfo(student stud) {
     return stud;
 }
 
-bool ExitMenu() {
-    MenuClass* ExMenu = new MenuClass("");
-    ExMenu->addMenuItem("Да");
-    ExMenu->addMenuItem("Нет");
-    cout << "Вы точно хотите выйти?";
-    if (!ExMenu->ItemSelect({ {0, {FOREGROUND_INTENSITY, 0, FOREGROUND_GREEN}}, {1, {FOREGROUND_INTENSITY, 0, FOREGROUND_RED}} })) {
-        system("cls");
-        exit(1);
-    }
-    system("cls");
-    WWC::ConsColor(15);
-    return false;
-}
-
 stud_score EditStudScore(string stud_id) {
     MenuClass* EDSc = new MenuClass("Изменение данных зачетки");
     stud_score stsc = EDSc->EditStudScoreMenu(stud_id);
@@ -87,20 +74,6 @@ stud_score EditStudScore(string stud_id) {
     return stsc;
 }
 
-void preparing() {
-    WWC::ShowConsoleCursor(false);
-    cout << "Preparing |";
-    while (true) {
-        cout << "\b/";
-        this_thread::sleep_for(chrono::milliseconds(250));
-        cout << "\b--";
-        this_thread::sleep_for(chrono::milliseconds(250));
-        cout << "\b \b\b\\";
-        this_thread::sleep_for(chrono::milliseconds(250));
-        cout << "\b|";
-        this_thread::sleep_for(chrono::milliseconds(250));
-    }
-}
 
 void variant(WwDB* wwdb) {
     EditDataClass* edc = new EditDataClass();
@@ -109,8 +82,6 @@ void variant(WwDB* wwdb) {
     cout << "\nВведите интервал года рождения (2): "; int y2 = edc->getData(editType::onlyDigit, 0, 9999);
     system("cls");
 
-    thread t(preparing);
-    t.detach();
 
     vector<student> students = wwdb->get_students_by_group(selectedItem);
     ListClass* otl_stud = new ListClass();
@@ -138,7 +109,6 @@ void variant(WwDB* wwdb) {
             otl_stud->addItem(students[i]);
     }
 
-    t.~thread();
     Sleep(10);
     system("cls");
 
@@ -179,7 +149,6 @@ int main()
         EditDataClass* edc = new EditDataClass();
         while (true) {
             cout << "Введите шифр студента: ";
-            WWC::ShowConsoleCursor(true);
             stud.id = edc->getData(editType::stud_id);
 
             if (wwdb->check_student(stud))
@@ -195,16 +164,12 @@ int main()
                 goto Groupsm;
             if (stud.group == "" || stud.surname == "" || stud.name == "") {
                 system("cls");
-                WWC::Cur2xy(0, 13);
                 WWC::ErrOut("Группа, фамилия и имя обязательны!");
-                WWC::Cur2xy(0, 0);
                 continue;
             }
             if (stud.bday.length() != 10) {
                 system("cls");
-                WWC::Cur2xy(0, 13);
                 WWC::ErrOut("Введена некорректная дата!");
-                WWC::Cur2xy(0, 0);
                 continue;
             }
             break;
@@ -214,11 +179,6 @@ int main()
         wwdb->add_student(stud);
         delete edc;
         system("cls");
-        goto Groupsm;
-    }
-    else if (selectedItem == "-1") {
-        system("cls");
-        ExitMenu();
         goto Groupsm;
     }
 
@@ -241,7 +201,7 @@ int main()
     case -1:
         goto Studlistm;
         break;
-    case 0: {
+    case 1: {
         student tmp = EditStudInfo(stud_selectedItem);
         if (tmp.id != "-1") {
             wwdb->edit_student(tmp);
@@ -252,7 +212,7 @@ int main()
         goto StudEditm;
     }
     break;
-    case 1: {
+    case 2: {
         stud_score stsc = EditStudScore(stud_selectedItem.id);
 
         if ( stsc.id == -2 || stsc.stud_id == "-1")
@@ -269,9 +229,9 @@ int main()
         system("cls");
         goto StudEditm;
         }
-    case 2:
+    case 3:
         wwdb->delete_student(stud_selectedItem.id);
-        goto Studlistm;
+        goto Groupsm;
     }
 
     delete wwdb;  
