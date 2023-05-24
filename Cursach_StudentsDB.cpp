@@ -80,52 +80,83 @@ void variant(WwDB* wwdb) {
     cout << "Введите интервал года рождения (1): "; int y1 = edc->getData(editType::onlyDigit, 0, 9999);
     edc->setData("");
     cout << "\nВведите интервал года рождения (2): "; int y2 = edc->getData(editType::onlyDigit, 0, 9999);
+    edc->setData("");
+    cout << "\nВведите номер семестра: "; int _sem = edc->getData(editType::onlyDigit, 0, 20);
     system("cls");
 
 
     vector<student> students = wwdb->get_students_by_group(selectedItem);
     ListClass* otl_stud = new ListClass();
+    ListClass* sred_stud = new ListClass();
     ListClass* bad_stud = new ListClass();
-    bool fl;
-
+    float aver;
 
     for (int i = 0; i < students.size(); ++i) {
-        fl = true;
+        aver = 0;
         int ysam = stoi(students[i].bday.substr(6, 10));
         if (!(y1 <= ysam && ysam <= y2))
             continue;
 
         vector<stud_score> stsc = wwdb->get_student_score(students[i].id);
 
-        for (int j = 0; j < stsc.size(); ++j) {
-            if (stsc[j].value == '-' || stsc[j].value < 4) {
-                bad_stud->addItem(students[i]);
-                fl = false;
-                break;
-            }
-        }
+        for (int j = 0; j < stsc.size(); ++j)
+            if (stsc[j].sem == _sem)
+                aver += (stsc[j].extype == ExamType::exam ? stsc[j].value : (stsc[j].value == '+' ? 5 : 2));
+        aver /= stsc.size();
 
-        if (fl)
-            otl_stud->addItem(students[i]);
+        if (aver >= 5)
+            otl_stud->push_back(students[i]);
+        else if (aver < 5 && aver >= 4)
+            sred_stud->push_back(students[i]);
+        else
+            bad_stud->push_back(students[i]);
     }
 
-    Sleep(10);
     system("cls");
 
+    vector<student>otlvs;
+    for (int i = 0; i < otl_stud->getCount(); ++i)
+        otlvs.push_back(otl_stud->getItem(i));
+    
+    vector<student>sredvs;
+    for (int i = 0; i < sred_stud->getCount(); ++i)
+        sredvs.push_back(sred_stud->getItem(i));
+    
+    vector<student>badvs;
+    for (int i = 0; i < bad_stud->getCount(); ++i)
+        badvs.push_back(bad_stud->getItem(i));
+    
+    sort(otlvs.begin(), otlvs.end(), [](student& left, student& right) {
+        return left.surname < right.surname;
+        });
+    sort(sredvs.begin(), sredvs.end(), [](student& left, student& right) {
+        return left.surname < right.surname;
+        });
+    sort(badvs.begin(), badvs.end(), [](student& left, student& right) {
+        return left.surname < right.surname;
+        });
+
     student tmp;
-    cout << "Отличники/хорошисты:\n";
+    cout << "Отличники:\n";
     for (int i = 0; i < otl_stud->getCount(); ++i) {
         tmp = otl_stud->getItem(i);
         cout << "   " << tmp.id << " " << tmp.surname << " " << tmp.name << " " << tmp.middle_name << " " << tmp.bday << endl;
     }
 
-    cout << "\nТроечники:\n";
+    cout << "Отличники и хорошисты:\n";
+    for (int i = 0; i < sred_stud->getCount(); ++i) {
+        tmp = sred_stud->getItem(i);
+        cout << "   " << tmp.id << " " << tmp.surname << " " << tmp.name << " " << tmp.middle_name << " " << tmp.bday << endl;
+    }
+
+    cout << "\nХорошисты и троечники:\n";
     for (int i = 0; i < bad_stud->getCount(); ++i) {
         tmp = bad_stud->getItem(i);
         cout << "   " << tmp.id << " " << tmp.surname << " " << tmp.name << " " << tmp.middle_name << " " << tmp.bday << endl;
     }
 
     delete otl_stud;
+    delete sred_stud;
     delete bad_stud;
 }
 

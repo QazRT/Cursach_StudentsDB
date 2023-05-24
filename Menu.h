@@ -308,7 +308,7 @@ public:
 		}
 
 
-		return scr[selectedItem];
+		return scr[selectedItem-1];
 	}
 
 	stud_score EditScoreInfoMenu(stud_score stsc) {

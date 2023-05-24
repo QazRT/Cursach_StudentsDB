@@ -32,9 +32,6 @@
     <ClInclude Include="Work_with_DB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Crypto.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="List.h">
       <Filter>Header Files</Filter>
     </ClInclude>

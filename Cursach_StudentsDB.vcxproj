@@ -131,7 +131,6 @@
     <ClCompile Include="Cursach_StudentsDB.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Crypto.h" />
     <ClInclude Include="EditDataClass.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Menu.h" />
